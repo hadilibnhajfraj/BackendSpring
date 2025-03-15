@@ -3,7 +3,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -12,18 +14,18 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Billet {
+public class Disponibilite_terrain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private int prix;
-    private LocalDate dateAchat;
+    private LocalDate date;
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek jour; //
+    private LocalTime heureDebut;
+    private LocalTime heureFin;
+    private boolean disponible; //
 
     @ManyToOne
-    //@JoinColumn(name = "id_user")
-    private User user;
-
-    @ManyToOne
-    //@JoinColumn(name = "id_match")
-    private MatchFo matchf;
+    // @JoinColumn(name = "id_terrain")
+    private Terrain terrain;
 }

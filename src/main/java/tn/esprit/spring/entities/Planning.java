@@ -3,24 +3,25 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-
-
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Match {
+public class Planning {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int idMatch;
+    int idPlanning;
 
-    String nom;
-    String logo;
-    String adresse;
-    int nb_joueur;
+    @OneToOne
+    //  @JoinColumn(name = "id_tournoi")
+    Tournoi tournoi;
+
+    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL)
+    List<MatchFo> matchs;
+
 }
