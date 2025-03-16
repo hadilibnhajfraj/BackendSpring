@@ -6,7 +6,10 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 @Entity
 @Getter
 @Setter
@@ -19,6 +22,8 @@ public class Publication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String contenu;
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate datePublication;
     private String typeMedia;
     private String urlMedia;
