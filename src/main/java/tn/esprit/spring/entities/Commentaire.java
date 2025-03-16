@@ -1,10 +1,10 @@
 package tn.esprit.spring.entities;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -17,16 +17,15 @@ public class Commentaire {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String texte;
     private LocalDate dateCommentaire;
 
+    private int nombreReactions = 0; // Nombre de réactions par défaut à 0
+
     @ManyToOne
-    //@JoinColumn(name = "id_user")
     private User user;
 
     @ManyToOne
-    //@JoinColumn(name = "id_publication")
     private Publication publication;
-
-
 }
