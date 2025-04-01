@@ -1,4 +1,5 @@
 package tn.esprit.spring.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,11 +28,17 @@ public class Equipe {
     @ManyToMany(mappedBy = "equipes1")
     List<MatchFo> matchsEquipe1;
 
-    @ManyToMany
+   // @ManyToMany
   /*  @JoinTable(
             name = "Tournoi_Equipe",
             joinColumns = @JoinColumn(name = "id_equipe"),
             inverseJoinColumns = @JoinColumn(name = "id_tournoi")
     )*/
-    private List<Tournoi> tournois;
+    //private List<Tournoi> tournois;
+
+    @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<TournoiEquipe> tournoiEquipes;
+
+
 }

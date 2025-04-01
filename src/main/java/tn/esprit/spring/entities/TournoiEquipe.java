@@ -1,11 +1,11 @@
 package tn.esprit.spring.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -14,15 +14,18 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Reservation {
+public class TournoiEquipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int idReservation;
-    LocalDate dateReservation;
+    int id;
 
     @ManyToOne
-    //  @JoinColumn(name = "id_terrain")
-    Terrain terrain;
-    private LocalTime heure;
+    @JsonIgnore
+    Tournoi tournoi;
 
+    @ManyToOne
+    @JsonIgnore
+    Equipe equipe;
+
+    LocalDate dateAffectation = LocalDate.now(); // Enregistre la date d'affectation
 }

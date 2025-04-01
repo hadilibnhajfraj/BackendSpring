@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,6 +23,11 @@ public class Planning {
     Tournoi tournoi;
 
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL)
-    List<MatchFo> matchs;
+    List<MatchFo> matchs = new ArrayList<>();
+
+    public void addMatch(MatchFo match) {
+        matchs.add(match);
+        match.setPlanning(this);
+    }
 
 }
