@@ -23,6 +23,8 @@ public class Tournoi {
     private int frais;
     private LocalDate dateDebut;
     private LocalDate dateFin;
+    @Transient // Ne pas stocker en base de données
+    private boolean hasMatchs;
 
     @OneToMany(mappedBy = "tournoi", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -44,4 +46,11 @@ public class Tournoi {
     @OneToMany(mappedBy = "tournoi", cascade = CascadeType.ALL)
     private List<TournoiEquipe> tournoiEquipes;
 
+    public boolean isHasMatchs() {
+        return hasMatchs;
+    }
+
+    public void setHasMatchs(boolean hasMatchs) {
+        this.hasMatchs = hasMatchs;
+    }
 }

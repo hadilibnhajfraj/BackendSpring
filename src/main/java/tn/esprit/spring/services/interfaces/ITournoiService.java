@@ -14,7 +14,7 @@ public interface ITournoiService {
     Tournoi updateTournoi(Integer id, Tournoi tournoi);
     void deleteTournoi(Integer id);
     Tournoi affecterEquipesATournoi(Integer tournoiId, List<Integer> equipeIds);
-
+    Tournoi desaffecterEquipeDuTournoi(Integer tournoiId, Integer equipeId);
 
     // Récupère les équipes inscrites à un tournoi
     List<Equipe> getEquipesParTournoi(Integer tournoiId);
@@ -24,6 +24,10 @@ public interface ITournoiService {
  //   List<Terrain> getTerrainsDisponiblesPourTournoi(Integer tournoiId, LocalDate dateMatch, LocalTime heureMatch);
 
     void affecterTerrainAMatch(Integer matchId, Integer terrainId);
+
+    List<MatchFo> getMatchsParTournoi(Integer tournoiId);
+
+    boolean tournoiADejaDesMatchs(Integer idTournoi);
 
 
 

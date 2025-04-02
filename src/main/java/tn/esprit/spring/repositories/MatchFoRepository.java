@@ -28,6 +28,8 @@ public interface MatchFoRepository extends JpaRepository<MatchFo, Integer> {
     List<MatchFo> findByTournoiAndTour(Tournoi tournoi, int tour);
 
     boolean existsByTerrainAndDateMatchAndHeureMatch(Terrain terrain, LocalDate dateMatch, Time heureMatch);
+    boolean existsByTournoi_IdTournoi(Integer idTournoi);
+
 
 
 

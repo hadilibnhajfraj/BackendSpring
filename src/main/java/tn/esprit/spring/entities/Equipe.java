@@ -26,6 +26,7 @@ public class Equipe {
     List<User> users;
 
     @ManyToMany(mappedBy = "equipes1")
+    @JsonIgnore
     List<MatchFo> matchsEquipe1;
 
    // @ManyToMany

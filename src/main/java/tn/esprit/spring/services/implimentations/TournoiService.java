@@ -36,12 +36,20 @@ public class TournoiService implements ITournoiService {
 
     @Override
     public List<Tournoi> getAllTournois() {
-        return tournoiRepository.findAll();
+        List<Tournoi> tournois = tournoiRepository.findAll();
+
+        // Ajouter la propriété hasMatchs pour chaque tournoi
+        for (Tournoi tournoi : tournois) {
+            tournoi.setHasMatchs(tournoiADejaDesMatchs(tournoi.getIdTournoi()));
+        }
+
+        return tournois;
     }
 
     public Tournoi getTournoiById(Integer id) {
         return tournoiRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tournoi non trouvé"));
+
     }
 
 
@@ -70,7 +78,8 @@ public class TournoiService implements ITournoiService {
 
         List<Equipe> equipes = equipeRepository.findAllById(equipeIds);
 
-        if (tournoi.getTournoiEquipes().size() + equipes.size() > tournoi.getNbEquipe()) {
+        // Vérifier si on peut ajouter ces équipes
+        if (tournoi.getNbEquipeRestant() < equipes.size()) {
             throw new IllegalStateException("Impossible d'ajouter ces équipes : dépassement du nombre maximum.");
         }
 
@@ -83,15 +92,49 @@ public class TournoiService implements ITournoiService {
                 throw new IllegalStateException("L'équipe " + equipe.getNom() + " est déjà inscrite dans ce tournoi.");
             }
 
-            // Ajouter l'équipe au tournoi si elle n'est pas encore inscrite
+            // Ajouter l'équipe au tournoi
             TournoiEquipe tournoiEquipe = new TournoiEquipe();
             tournoiEquipe.setTournoi(tournoi);
             tournoiEquipe.setEquipe(equipe);
             tournoiEquipeRepository.save(tournoiEquipe);
+
+            // Mettre à jour le nombre d'équipes restantes
+            tournoi.setNbEquipeRestant(tournoi.getNbEquipeRestant() - 1);
+        }
+
+        // Sauvegarde du tournoi mis à jour
+        tournoiRepository.save(tournoi);
+        return tournoi;
+    }
+
+    @Override
+    public Tournoi desaffecterEquipeDuTournoi(Integer tournoiId, Integer equipeId) {
+        // Récupérer le tournoi
+        Tournoi tournoi = tournoiRepository.findById(tournoiId)
+                .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
+
+        // Vérifier si l'équipe participe réellement à ce tournoi
+        Optional<TournoiEquipe> tournoiEquipeOpt = tournoi.getTournoiEquipes().stream()
+                .filter(te -> te.getEquipe().getIdEquipe() == equipeId) // Comparaison directe des entiers
+                .findFirst();
+
+        if (tournoiEquipeOpt.isEmpty()) {
+            throw new IllegalStateException("Impossible de désaffecter : l'équipe ne participe pas à ce tournoi.");
+        }
+
+        // Récupérer l'affectation et la supprimer
+        TournoiEquipe tournoiEquipe = tournoiEquipeOpt.get();
+        tournoiEquipeRepository.delete(tournoiEquipe);
+
+        // Mettre à jour le nombre d'équipes restantes (si supérieur à 0)
+        if (tournoi.getNbEquipeRestant() < tournoi.getNbEquipe()) {
+            tournoi.setNbEquipeRestant(tournoi.getNbEquipeRestant() + 1);
+            tournoiRepository.save(tournoi);
         }
 
         return tournoi;
     }
+
 
     @Override
     public List<Equipe> getEquipesParTournoi(Integer tournoiId) {
@@ -106,13 +149,29 @@ public class TournoiService implements ITournoiService {
                 .collect(Collectors.toList());
     }
 
+    public boolean tournoiADejaDesMatchs(Integer idTournoi) {
+        return matchFoRepository.existsByTournoi_IdTournoi(idTournoi);
+    }
 
-    @Transactional
-    public String genererPremierTour(Integer tournoiId) {
+    public List<MatchFo> getMatchsParTournoi(Integer tournoiId) {
         Tournoi tournoi = tournoiRepository.findById(tournoiId)
                 .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
 
-        List<Equipe> equipes = getEquipesParTournoi(tournoiId);
+        return matchFoRepository.findByTournoi(tournoi);
+    }
+
+
+    @Transactional
+    public String genererPremierTour(Integer idTournoi) {
+        // Vérifier si des matchs existent déjà pour ce tournoi
+        if (tournoiADejaDesMatchs(idTournoi)) {
+            throw new IllegalStateException("Un tirage au sort a déjà été effectué pour ce tournoi.");
+        }
+
+        Tournoi tournoi = tournoiRepository.findById(idTournoi)
+                .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
+
+        List<Equipe> equipes = getEquipesParTournoi(idTournoi);
         if (equipes.size() < 2) {
             throw new IllegalStateException("Il faut au moins 2 équipes pour organiser un tournoi.");
         }
@@ -140,8 +199,10 @@ public class TournoiService implements ITournoiService {
         }
 
         matchFoRepository.saveAll(matchs);
+
         return result.toString();
     }
+
     @Transactional
     @Override
     public String mettreAJourScores(Integer matchId, int scoreEquipe1, int scoreEquipe2) {

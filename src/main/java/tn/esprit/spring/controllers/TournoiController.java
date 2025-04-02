@@ -57,7 +57,7 @@ public class TournoiController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/affecterEquipes/{tournoiId}")
     public ResponseEntity<?> affecterEquipesATournoi(@PathVariable Integer tournoiId, @RequestBody List<Integer> equipeIds) {
         try {
@@ -69,8 +69,22 @@ public class TournoiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne : " + e.getMessage());
         }
     }
-
-
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PutMapping("/desaffecterEquipe/{tournoiId}/{equipeId}")
+    public ResponseEntity<String> desaffecterEquipeDuTournoi(
+            @PathVariable Integer tournoiId,
+            @PathVariable Integer equipeId) {
+        try {
+            tournoiService.desaffecterEquipeDuTournoi(tournoiId, equipeId);
+            return ResponseEntity.ok("L'équipe a été retirée du tournoi avec succès.");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la désaffectation de l'équipe : " + e.getMessage());
+        }
+    }
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/getEquipesParTournoi/{tournoiId}")
     public ResponseEntity<?> getEquipesParTournoi(@PathVariable Integer tournoiId) {
         try {
@@ -85,7 +99,7 @@ public class TournoiController {
                     .body("Erreur : " + e.getMessage());
         }
     }
-
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/genererMatchs/{tournoiId}")
     public ResponseEntity<String> genererMatchs(@PathVariable Integer tournoiId) {
         try {
@@ -97,6 +111,8 @@ public class TournoiController {
         }
     }
 
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/mettreAJourScores/{matchId}")
     public ResponseEntity<String> mettreAJourScores(
             @PathVariable Integer matchId,
@@ -111,6 +127,8 @@ public class TournoiController {
         }
     }
 
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/genererTourSuivant/{tournoiId}")
     public ResponseEntity<String> genererTourSuivant(@PathVariable Integer tournoiId) {
         try {
@@ -143,6 +161,7 @@ public class TournoiController {
 
 
     // Endpoint pour affecter un terrain à un match
+    @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/affecterTerrain/{matchId}/{terrainId}")
     public ResponseEntity<String> affecterTerrainAMatch(
             @PathVariable Integer matchId,
@@ -157,7 +176,18 @@ public class TournoiController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/{tournoiId}/matchs")
+    public List<MatchFo> getMatchsParTournoi(@PathVariable Integer tournoiId) {
+        return tournoiService.getMatchsParTournoi(tournoiId);
+    }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/tournois/{idTournoi}/hasMatchs")
+    public ResponseEntity<Boolean> tournoiADejaDesMatchs(@PathVariable Integer idTournoi) {
+        boolean hasMatchs = tournoiService.tournoiADejaDesMatchs(idTournoi);
+        return ResponseEntity.ok(hasMatchs);
+    }
 
 }
 
