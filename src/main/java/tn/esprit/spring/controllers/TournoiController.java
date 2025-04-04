@@ -85,6 +85,16 @@ public class TournoiController {
         }
     }
     @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/{tournoiId}/equipesNonInscrites")
+    public ResponseEntity<List<Equipe>> getEquipesNonInscrites(@PathVariable Integer tournoiId) {
+        try {
+            List<Equipe> equipesNonInscrites = tournoiService.getEquipesNonInscrites(tournoiId);
+            return ResponseEntity.ok(equipesNonInscrites);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retourner 404 si tournoi introuvable
+        }
+    }
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/getEquipesParTournoi/{tournoiId}")
     public ResponseEntity<?> getEquipesParTournoi(@PathVariable Integer tournoiId) {
         try {

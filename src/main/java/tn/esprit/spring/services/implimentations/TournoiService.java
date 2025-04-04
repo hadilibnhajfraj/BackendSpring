@@ -9,6 +9,8 @@ import tn.esprit.spring.repositories.*;
 import tn.esprit.spring.services.interfaces.ITournoiService;
 
 
+
+
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -106,33 +108,46 @@ public class TournoiService implements ITournoiService {
         tournoiRepository.save(tournoi);
         return tournoi;
     }
-
     @Override
-    public Tournoi desaffecterEquipeDuTournoi(Integer tournoiId, Integer equipeId) {
-        // Récupérer le tournoi
+    public void desaffecterEquipeDuTournoi(Integer tournoiId, Integer equipeId) {
+        // Trouver le tournoi par son ID
         Tournoi tournoi = tournoiRepository.findById(tournoiId)
                 .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
 
-        // Vérifier si l'équipe participe réellement à ce tournoi
-        Optional<TournoiEquipe> tournoiEquipeOpt = tournoi.getTournoiEquipes().stream()
-                .filter(te -> te.getEquipe().getIdEquipe() == equipeId) // Comparaison directe des entiers
-                .findFirst();
+        // Trouver l'équipe par son ID
+        Equipe equipe = equipeRepository.findById(equipeId)
+                .orElseThrow(() -> new NoSuchElementException("Equipe introuvable"));
 
-        if (tournoiEquipeOpt.isEmpty()) {
-            throw new IllegalStateException("Impossible de désaffecter : l'équipe ne participe pas à ce tournoi.");
-        }
+        // Trouver l'association entre le tournoi et l'équipe dans la table de jointure TournoiEquipe
+        TournoiEquipe tournoiEquipe = tournoiEquipeRepository.findByTournoiAndEquipe(tournoi, equipe)
+                .orElseThrow(() -> new NoSuchElementException("L'équipe n'est pas associée à ce tournoi"));
 
-        // Récupérer l'affectation et la supprimer
-        TournoiEquipe tournoiEquipe = tournoiEquipeOpt.get();
+        // Supprimer cette association
         tournoiEquipeRepository.delete(tournoiEquipe);
 
-        // Mettre à jour le nombre d'équipes restantes (si supérieur à 0)
-        if (tournoi.getNbEquipeRestant() < tournoi.getNbEquipe()) {
-            tournoi.setNbEquipeRestant(tournoi.getNbEquipeRestant() + 1);
-            tournoiRepository.save(tournoi);
-        }
+        // Mettre à jour le nombre d'équipes restantes dans le tournoi
+        tournoi.setNbEquipeRestant(tournoi.getNbEquipeRestant() + 1);
+        tournoiRepository.save(tournoi);
+    }
 
-        return tournoi;
+
+    @Transactional
+    public List<Equipe> getEquipesNonInscrites(Integer tournoiId) {
+        // Trouver le tournoi
+        Tournoi tournoi = tournoiRepository.findById(tournoiId)
+                .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
+
+        // Récupérer les équipes inscrites au tournoi
+        List<Equipe> equipesInscrites = tournoi.getTournoiEquipes().stream()
+                .map(te -> te.getEquipe())
+                .collect(Collectors.toList());
+
+        // Récupérer toutes les équipes qui ne sont pas encore inscrites au tournoi
+        List<Equipe> equipesNonInscrites = equipeRepository.findAll().stream()
+                .filter(equipe -> !equipesInscrites.contains(equipe))
+                .collect(Collectors.toList());
+
+        return equipesNonInscrites;
     }
 
 
