@@ -11,5 +11,7 @@ public interface PublicationInterface {
     Publication retrievePublication(int idPublication);
     void removePublication(int idPublication);
     List<Publication> getPublicationsByUserId(Long userId);
+    Publication getLiveMatch();
+    Publication getLatestVideo();
 
 }

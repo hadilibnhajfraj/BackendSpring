@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, Integer> {
     List<Publication> findByUserId(Long userId);
+    Publication findFirstByIsLiveTrueOrderByDatePublicationDesc();
+    Publication findFirstByTypeMediaOrderByDatePublicationDesc(String type);
 }

@@ -116,4 +116,14 @@ public class PublicationService implements PublicationInterface {
         Files.write(path, file.getBytes());
         return filePath;
     }
+    @Override
+    public Publication getLiveMatch() {
+        return publicationRepository.findFirstByIsLiveTrueOrderByDatePublicationDesc();
+    }
+
+    @Override
+    public Publication getLatestVideo() {
+        return publicationRepository.findFirstByTypeMediaOrderByDatePublicationDesc("video");
+    }
+
 }

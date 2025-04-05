@@ -10,9 +10,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:4200")  // Autoriser l'accès depuis Angular
+                .allowedOrigins("http://localhost:4200","http://localhost:3000") // Explicitly allow Angular frontend origin
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true);  // Credentials are allowed for this origin
     }
 }
+

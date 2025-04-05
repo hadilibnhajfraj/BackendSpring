@@ -21,6 +21,10 @@ public class User {
     private String nom;
     private String prenom;
     private LocalDate dateNaissance;
+    @Column(unique = true)
+    private String email;
+    private String password;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

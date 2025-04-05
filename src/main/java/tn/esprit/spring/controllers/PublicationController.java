@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.Publication;
 
+import tn.esprit.spring.services.implementations.JwtService;
 import tn.esprit.spring.services.interfaces.PublicationInterface;
 
 import java.io.IOException;
@@ -18,10 +19,27 @@ import java.util.List;
 @AllArgsConstructor
 public class PublicationController {
     PublicationInterface publicationService;
+    private final JwtService jwtService;
+/*
+    @PostMapping("/add")
+    public ResponseEntity<Publication> addPublication(@RequestPart("publication") Publication publication,
+                                                      @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        return ResponseEntity.ok(publicationService.addPublication(publication, file));
+    }
+*/
 
     @PostMapping("/add")
     public ResponseEntity<Publication> addPublication(@RequestPart("publication") Publication publication,
                                                       @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        // Log the role being retrieved
+        System.out.println("Authenticated user role: " + jwtService.getAuthenticatedUserRole());
+
+        // Check if the user has the role 'Presse'
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).body(null);  // 403 Forbidden if the user is not 'Presse'
+        }
+
+        // If the user is 'Presse', add the publication
         return ResponseEntity.ok(publicationService.addPublication(publication, file));
     }
 

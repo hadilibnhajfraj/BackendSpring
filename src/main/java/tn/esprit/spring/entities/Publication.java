@@ -27,7 +27,7 @@ public class Publication {
     private LocalDate datePublication;
     private String typeMedia;
     private String urlMedia;
-
+    private boolean isLive; // Nouveau champ pour identifier un direct
     @ManyToOne
     // @JoinColumn(name = "id_user")
     private User user;
