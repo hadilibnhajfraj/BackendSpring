@@ -43,6 +43,13 @@ public class JwtService {
         // Return null if the user is not authenticated or the role is not found
         return null;
     }
+    public String getEmailFromAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return (String) authentication.getPrincipal();
+        }
+        return null;
+    }
 
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()

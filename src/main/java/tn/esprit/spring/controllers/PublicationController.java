@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.Publication;
 
+import tn.esprit.spring.entities.User;
+import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.implementations.JwtService;
 import tn.esprit.spring.services.interfaces.PublicationInterface;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class PublicationController {
     PublicationInterface publicationService;
     private final JwtService jwtService;
+    UserRepository userRepository;
 /*
     @PostMapping("/add")
     public ResponseEntity<Publication> addPublication(@RequestPart("publication") Publication publication,
@@ -28,22 +31,27 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.addPublication(publication, file));
     }
 */
+@PostMapping("/add")
+public ResponseEntity<Publication> addPublication(
+        @RequestPart("publication") String publicationJson,
+        @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-    @PostMapping("/add")
-    public ResponseEntity<Publication> addPublication(@RequestPart("publication") String publicationJson,
-                                                      @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        System.out.println("Authenticated user role: " + jwtService.getAuthenticatedUserRole());
+    System.out.println("Authenticated user role: " + jwtService.getAuthenticatedUserRole());
 
-        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
-            return ResponseEntity.status(403).body(null);
-        }
-
-        // Convertir JSON -> Publication
-        ObjectMapper objectMapper = new ObjectMapper();
-        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
-
-        return ResponseEntity.ok(publicationService.addPublication(publication, file));
+    if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+        return ResponseEntity.status(403).body(null);
     }
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    Publication publication = objectMapper.readValue(publicationJson, Publication.class);
+
+    // 🔐 Associer l'utilisateur connecté
+    String email = jwtService.getEmailFromAuthenticatedUser(); // 👈 à ajouter dans JwtService
+
+    userRepository.findByEmail(email).ifPresent(publication::setUser);
+
+    return ResponseEntity.ok(publicationService.addPublication(publication, file));
+}
 
 
     @GetMapping("/all")

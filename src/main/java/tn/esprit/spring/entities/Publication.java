@@ -1,4 +1,5 @@
 package tn.esprit.spring.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class Publication {
     private String urlMedia;
     private boolean isLive; // Nouveau champ pour identifier un direct
     @ManyToOne
+    @JsonIgnore
     // @JoinColumn(name = "id_user")
     private User user;
 
