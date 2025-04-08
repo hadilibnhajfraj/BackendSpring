@@ -3,6 +3,7 @@ package tn.esprit.spring.services.implementations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -37,9 +38,12 @@ public class SecurityConfig {
         http.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/api/auth/login").permitAll()  // Permit access to login
-                .requestMatchers("/publications/add").hasAuthority("Presse")  // Ajout du préfixe "ROLE_"
-                .anyRequest().authenticated();  // Require authentication for all other requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // autoriser pré-vol
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/publications/add").hasAuthority("Presse")
+                .anyRequest().authenticated();
+        // Require authentication for all other requests
         return http.build();
     }
+
 }

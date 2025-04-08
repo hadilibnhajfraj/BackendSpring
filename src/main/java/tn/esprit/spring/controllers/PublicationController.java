@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 @RequestMapping("/publications")
 @AllArgsConstructor
 public class PublicationController {
@@ -29,19 +30,21 @@ public class PublicationController {
 */
 
     @PostMapping("/add")
-    public ResponseEntity<Publication> addPublication(@RequestPart("publication") Publication publication,
+    public ResponseEntity<Publication> addPublication(@RequestPart("publication") String publicationJson,
                                                       @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        // Log the role being retrieved
         System.out.println("Authenticated user role: " + jwtService.getAuthenticatedUserRole());
 
-        // Check if the user has the role 'Presse'
         if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
-            return ResponseEntity.status(403).body(null);  // 403 Forbidden if the user is not 'Presse'
+            return ResponseEntity.status(403).body(null);
         }
 
-        // If the user is 'Presse', add the publication
+        // Convertir JSON -> Publication
+        ObjectMapper objectMapper = new ObjectMapper();
+        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
+
         return ResponseEntity.ok(publicationService.addPublication(publication, file));
     }
+
 
     @GetMapping("/all")
     public List<Publication> getAllPublications() {
