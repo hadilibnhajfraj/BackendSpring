@@ -16,16 +16,30 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User createUser(UserDTO userDTO) {
+   /* public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setNom(userDTO.nom);
         user.setPrenom(userDTO.prenom);
         user.setEmail(userDTO.email);
         user.setPassword(passwordEncoder.encode(userDTO.password)); // encode
         user.setRole(userDTO.role);
-
+        String jwt = JwtService.generateToken(user);
         return userRepository.save(user);
-    }
+    }*/
+   public AuthResponse register(UserDTO userDTO) {
+       User user = new User();
+       user.setNom(userDTO.nom);
+       user.setPrenom(userDTO.prenom);
+       user.setEmail(userDTO.email);
+       user.setPassword(passwordEncoder.encode(userDTO.password));
+       user.setRole(userDTO.role);
+
+       userRepository.save(user);
+
+       String jwt = JwtService.generateToken(user);
+       return new AuthResponse(jwt);
+   }
+
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())

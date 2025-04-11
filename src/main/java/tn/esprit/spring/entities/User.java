@@ -1,5 +1,6 @@
 package tn.esprit.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +25,10 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
+    }
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -33,17 +38,22 @@ public class User {
     private Equipe equipe;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Publication> publications;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Commentaire> commentaires;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Billet> billets;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Tournoi> tournois;
 
     @OneToMany(mappedBy = "proprietaire")
+    @JsonIgnore
     private List<Terrain> terrains;
 }

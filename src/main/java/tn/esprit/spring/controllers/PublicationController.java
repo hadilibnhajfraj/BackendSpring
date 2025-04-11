@@ -1,13 +1,18 @@
 package tn.esprit.spring.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.Hibernate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.Publication;
 
+import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.implementations.JwtService;
@@ -15,75 +20,138 @@ import tn.esprit.spring.services.interfaces.PublicationInterface;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 @RequestMapping("/publications")
 @AllArgsConstructor
 public class PublicationController {
-    PublicationInterface publicationService;
+
+    private final PublicationInterface publicationService;
     private final JwtService jwtService;
-    UserRepository userRepository;
-/*
-    @PostMapping("/add")
-    public ResponseEntity<Publication> addPublication(@RequestPart("publication") Publication publication,
-                                                      @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+    private final UserRepository userRepository;
+
+    /*@PostMapping("/add")
+    public ResponseEntity<Publication> addPublication(
+            @RequestPart("publication") String publicationJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).body(null);
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
+
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        userRepository.findByEmail(email).ifPresent(publication::setUser);
+
         return ResponseEntity.ok(publicationService.addPublication(publication, file));
+    }*/
+    @PostMapping("/add")
+    public ResponseEntity<Publication> addPublication(
+            @RequestPart("publication") String publicationJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).body(null);
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
+
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        userRepository.findByEmail(email).ifPresent(publication::setUser);
+
+        // Retourner la publication créée
+        Publication createdPublication = publicationService.addPublication(publication, file);
+        return ResponseEntity.ok(createdPublication);
     }
-*/
-@PostMapping("/add")
-public ResponseEntity<Publication> addPublication(
-        @RequestPart("publication") String publicationJson,
-        @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-    System.out.println("Authenticated user role: " + jwtService.getAuthenticatedUserRole());
-
-    if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
-        return ResponseEntity.status(403).body(null);
-    }
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    Publication publication = objectMapper.readValue(publicationJson, Publication.class);
-
-    // 🔐 Associer l'utilisateur connecté
-    String email = jwtService.getEmailFromAuthenticatedUser(); // 👈 à ajouter dans JwtService
-
-    userRepository.findByEmail(email).ifPresent(publication::setUser);
-
-    return ResponseEntity.ok(publicationService.addPublication(publication, file));
-}
-
-
-    @GetMapping("/all")
-    public List<Publication> getAllPublications() {
-        return publicationService.retrievePublications();
-    }
 
     @PutMapping(value = "/updatePublication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Publication> updatePublication(
             @RequestPart("publication") String publicationJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-        // Convertir publicationJson en objet Publication
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).body(null);
+        }
+
         ObjectMapper objectMapper = new ObjectMapper();
         Publication publication = objectMapper.readValue(publicationJson, Publication.class);
 
         return ResponseEntity.ok(publicationService.updatePublication(publication, file));
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deletePublication(@PathVariable int id) {
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        publicationService.removePublication(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/all")
+    public List<Publication> getAllPublications() {
+        return publicationService.retrievePublications();
+    }
+
+    /*@GetMapping("/user/{userId}")
+    public List<Publication> getPublicationsByUser(@PathVariable Long userId) {
+        return publicationService.getPublicationsByUserId(userId);
+    }*/
+    @PreAuthorize("hasRole('Presse')")
+    @GetMapping("/mine")
+    @Transactional
+    public ResponseEntity<List<Publication>> getMyPublications(@RequestHeader("Authorization") String authorizationHeader) {
+        // Vérifier si l'en-tête Authorization est présent et commence par "Bearer "
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            System.out.println("Token manquant ou invalide.");
+            return ResponseEntity.badRequest().body(null);  // Retourner 400 Bad Request en cas de token manquant ou invalide
+        }
+
+        // Extraire le token à partir de l'en-tête Authorization
+        String token = authorizationHeader.substring(7);
+
+        // Extraire l'email de l'utilisateur authentifié à partir du token
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        System.out.println("Email extrait du token : " + email);
+
+        // Vérifier si l'utilisateur existe dans la base de données
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            System.out.println("Utilisateur trouvé : " + user.getEmail() + ", Role : " + user.getRole());
+
+            // Comparaison des rôles, pour vérifier si l'utilisateur a le rôle 'Presse'
+            if (Role.Presse.equals(user.getRole())) {
+                System.out.println("L'utilisateur a le rôle Presse.");
+                List<Publication> publications = user.getPublications();
+                System.out.println("Mes publications : " + publications);
+                return publications.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(publications);
+
+
+            } else {
+                System.out.println("L'utilisateur n'a pas le rôle Presse. Rôle actuel : " + user.getRole());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // 403 Forbidden
+            }
+        } else {
+            // Si l'utilisateur n'existe pas dans la base de données
+            System.out.println("Utilisateur non trouvé avec l'email : " + email);
+            return ResponseEntity.notFound().build();  // 404 Not Found si l'utilisateur n'est pas trouvé
+        }
+    }
+
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Publication> getPublication(@PathVariable int id) {
         return ResponseEntity.ok(publicationService.retrievePublication(id));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deletePublication(@PathVariable int id) {
-        publicationService.removePublication(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/user/{userId}")
-    public List<Publication> getPublicationsByUser(@PathVariable Long userId) {
-        return publicationService.getPublicationsByUserId(userId);
-    }
 }

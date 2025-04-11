@@ -1,4 +1,5 @@
 package tn.esprit.spring.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,10 +21,12 @@ public class Billet {
     private LocalDate dateAchat;
 
     @ManyToOne
+    @JsonIgnore
     //@JoinColumn(name = "id_user")
     private User user;
 
     @ManyToOne
+    @JsonIgnore
     //@JoinColumn(name = "id_match")
     private MatchFo matchf;
 }

@@ -102,7 +102,7 @@ public class PublicationService implements PublicationInterface {
     }
 
     @Override
-    public List<Publication> getPublicationsByUserId(Long userId) {
+    public List<Publication> getPublicationsByUserId(int userId) {
         return publicationRepository.findByUserId(userId);
     }
 

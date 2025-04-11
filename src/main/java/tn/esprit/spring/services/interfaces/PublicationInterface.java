@@ -10,8 +10,7 @@ public interface PublicationInterface {
     Publication updatePublication(Publication publication, MultipartFile file) throws IOException;
     Publication retrievePublication(int idPublication);
     void removePublication(int idPublication);
-    List<Publication> getPublicationsByUserId(Long userId);
+    List<Publication> getPublicationsByUserId(int userId);
     Publication getLiveMatch();
     Publication getLatestVideo();
-
 }

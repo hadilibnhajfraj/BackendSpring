@@ -39,8 +39,9 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // autoriser pré-vol
-                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/publications/add").hasAuthority("Presse")
+                .requestMatchers("/publications/mine").hasAuthority("Presse")
                 .anyRequest().authenticated();
         // Require authentication for all other requests
         return http.build();
