@@ -70,7 +70,7 @@ public class PublicationController {
     }
 
 
-    @PutMapping(value = "/updatePublication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+ /*   @PutMapping(value = "/updatePublication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Publication> updatePublication(
             @RequestPart("publication") String publicationJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
@@ -84,6 +84,29 @@ public class PublicationController {
 
         return ResponseEntity.ok(publicationService.updatePublication(publication, file));
     }
+*/
+ @PutMapping(value = "/updatePublication/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+ public ResponseEntity<Publication> updatePublication(
+         @PathVariable("id") int id,
+         @RequestPart("publication") String publicationJson,
+         @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+
+     if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+         return ResponseEntity.status(403).body(null);
+     }
+
+     ObjectMapper objectMapper = new ObjectMapper();
+     Publication publication = objectMapper.readValue(publicationJson, Publication.class);
+     publication.setId(id); // Assigner l'id de la publication à modifier
+
+     // 🔥 Récupération de l'utilisateur à partir du token
+     String email = jwtService.getEmailFromAuthenticatedUser();
+     Optional<User> userOptional = userRepository.findByEmail(email);
+     userOptional.ifPresent(publication::setUser); // Assigner l'utilisateur à la publication
+
+     return ResponseEntity.ok(publicationService.updatePublication(publication, file));
+ }
+
 
     @GetMapping("/getPublication/{id}")
     public ResponseEntity<Publication> getPublication(@PathVariable int id) {
@@ -155,6 +178,6 @@ public class PublicationController {
             return ResponseEntity.notFound().build();  // 404 Not Found si l'utilisateur n'est pas trouvé
         }
     }
-    
+
 
 }
