@@ -4,12 +4,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+
 public interface PublicationInterface {
     Publication addPublication(Publication publication, MultipartFile file) throws IOException;
     List<Publication> retrievePublications();
     Publication updatePublication(Publication publication, MultipartFile file) throws IOException;
-    Publication retrievePublication(int idPublication);
+
     void removePublication(int idPublication);
+    Optional<Publication> retrievePublicationById(int idPublication);
     List<Publication> getPublicationsByUserId(int userId);
     Publication getLiveMatch();
     Publication getLatestVideo();

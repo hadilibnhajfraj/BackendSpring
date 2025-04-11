@@ -85,6 +85,16 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.updatePublication(publication, file));
     }
 
+    @GetMapping("/getPublication/{id}")
+    public ResponseEntity<Publication> getPublication(@PathVariable int id) {
+        Optional<Publication> publication = publicationService.retrievePublicationById(id);
+
+        if (publication.isPresent()) {
+            return ResponseEntity.ok(publication.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePublication(@PathVariable int id) {
         if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
@@ -145,13 +155,6 @@ public class PublicationController {
             return ResponseEntity.notFound().build();  // 404 Not Found si l'utilisateur n'est pas trouvé
         }
     }
-
-
-
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Publication> getPublication(@PathVariable int id) {
-        return ResponseEntity.ok(publicationService.retrievePublication(id));
-    }
+    
 
 }

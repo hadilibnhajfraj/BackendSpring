@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -92,10 +93,9 @@ public class PublicationService implements PublicationInterface {
 
 
     @Override
-    public Publication retrievePublication(int idPublication) {
-        return publicationRepository.findById(idPublication).orElse(null);
+    public Optional<Publication> retrievePublicationById(int idPublication) {
+        return publicationRepository.findById(idPublication);  // Utilisation de la méthode findById
     }
-
     @Override
     public void removePublication(int idPublication) {
         publicationRepository.deleteById(idPublication);
