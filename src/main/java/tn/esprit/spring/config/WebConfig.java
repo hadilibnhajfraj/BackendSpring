@@ -31,9 +31,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Spécifie le chemin absolu vers le dossier uploads pour les fichiers statiques
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:C:/Users/bhfha/Documents/Angular + Spring/BackendPI/uploads/"); // Remarque le préfixe 'file:'
+        registry
+                .addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 
 }
