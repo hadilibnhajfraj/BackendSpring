@@ -24,12 +24,17 @@ public class User {
     private LocalDate dateNaissance;
     @Enumerated(EnumType.STRING)
     private Role role;
-
+    @Column(unique = true)
+    private String email;
+    private String password;
     @ManyToOne
     @JsonIgnore
     // @JoinColumn(name = "id_equipe")
     private Equipe equipe;
-
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
+    }
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Publication> publications;
