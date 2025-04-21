@@ -35,7 +35,13 @@ public class Publication {
     public String toString() {
         return "Publication{id=" + id + ", contenu='" + contenu + "', datePublication=" + datePublication + ", isLive=" + isLive + ", typeMedia=" + typeMedia + ", urlMedia='" + urlMedia + "'}";
     }
+    public boolean isLive() {
+        return isLive;
+    }
 
+    public void setIsLive(boolean live) {
+        this.isLive = live;
+    }
     @ManyToOne
 
     // @JoinColumn(name = "id_user")

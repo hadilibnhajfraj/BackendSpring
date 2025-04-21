@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .requestMatchers("/publications/add").hasAuthority("Presse")
                 .requestMatchers("/publications/mine").hasAuthority("Presse")
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
+                .requestMatchers("/start-live/**").hasAuthority("Presse")
+                .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated();
         // Require authentication for all other requests

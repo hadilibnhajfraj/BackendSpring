@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,13 @@ import tn.esprit.spring.entities.Publication;
 
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
+import tn.esprit.spring.repositories.PublicationRepository;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.implementations.JwtService;
 import tn.esprit.spring.services.interfaces.PublicationInterface;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +35,8 @@ public class PublicationController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
+    @Autowired
+    private PublicationRepository publicationRepository;
     /*@PostMapping("/add")
     public ResponseEntity<Publication> addPublication(
             @RequestPart("publication") String publicationJson,
@@ -177,6 +182,26 @@ public class PublicationController {
             System.out.println("Utilisateur non trouvé avec l'email : " + email);
             return ResponseEntity.notFound().build();  // 404 Not Found si l'utilisateur n'est pas trouvé
         }
+    }
+    @PostMapping("/start-live")
+    public ResponseEntity<Publication> startLive() {
+        // Vérifie le rôle
+        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(403).body(null);
+        }
+
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        Publication pub = new Publication();
+        pub.setUser(user);
+        pub.setContenu("Live en cours");
+        pub.setIsLive(true);
+        pub.setDatePublication(LocalDate.now());
+
+        publicationRepository.save(pub);
+
+        return ResponseEntity.ok(pub);
     }
 
 
