@@ -2,11 +2,14 @@ package tn.esprit.spring.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.MatchFoRepository;
 import tn.esprit.spring.services.interfaces.ITournoiService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -59,16 +62,21 @@ public class TournoiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/affecterEquipes/{tournoiId}")
-    public ResponseEntity<?> affecterEquipesATournoi(@PathVariable Integer tournoiId, @RequestBody List<Integer> equipeIds) {
+    public ResponseEntity<?> affecterEquipesATournoi(
+            @PathVariable Integer tournoiId,
+            @RequestBody List<Integer> equipeIds) {
         try {
             Tournoi tournoi = tournoiService.affecterEquipesATournoi(tournoiId, equipeIds);
-            return ResponseEntity.ok(tournoi);
+            return ResponseEntity.ok(tournoi); // On renvoie directement l'objet si tout se passe bien
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Erreur interne : " + e.getMessage() + "\"}");
         }
     }
+
     @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/desaffecterEquipe/{tournoiId}/{equipeId}")
     public ResponseEntity<String> desaffecterEquipeDuTournoi(
@@ -76,14 +84,16 @@ public class TournoiController {
             @PathVariable Integer equipeId) {
         try {
             tournoiService.desaffecterEquipeDuTournoi(tournoiId, equipeId);
-            return ResponseEntity.ok("L'équipe a été retirée du tournoi avec succès.");
+            return ResponseEntity.ok("{\"message\": \"L'équipe a été retirée du tournoi avec succès.\"}");
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors de la désaffectation de l'équipe : " + e.getMessage());
+                    .body("{\"error\": \"Erreur lors de la désaffectation de l'équipe : " + e.getMessage() + "\"}");
         }
     }
+
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/{tournoiId}/equipesNonInscrites")
     public ResponseEntity<List<Equipe>> getEquipesNonInscrites(@PathVariable Integer tournoiId) {
@@ -114,7 +124,7 @@ public class TournoiController {
     public ResponseEntity<String> genererMatchs(@PathVariable Integer tournoiId) {
         try {
             String resultat = tournoiService.genererPremierTour(tournoiId);
-            return ResponseEntity.ok(resultat);
+            return ResponseEntity.ok("{\"message\": \"Matchs générés avec succès\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erreur lors de la génération des matchs : " + e.getMessage());
@@ -130,12 +140,13 @@ public class TournoiController {
             @RequestParam int scoreEquipe2) {
         try {
             tournoiService.mettreAJourScores(matchId, scoreEquipe1, scoreEquipe2);
-            return ResponseEntity.ok("Scores mis à jour avec succès !");
+            return ResponseEntity.ok("{\"message\": \"Scores mis à jour avec succès !\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors de la mise à jour des scores : " + e.getMessage());
+                    .body("{\"error\": \"Erreur lors de la mise à jour des scores : " + e.getMessage() + "\"}");
         }
     }
+
 
 
     @CrossOrigin(origins = "http://localhost:4200")
@@ -143,31 +154,14 @@ public class TournoiController {
     public ResponseEntity<String> genererTourSuivant(@PathVariable Integer tournoiId) {
         try {
             String resultat = tournoiService.genererTourSuivant(tournoiId);
-            return ResponseEntity.ok(resultat);
+            return ResponseEntity.ok("{\"message\": \"" + resultat + "\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors de la génération du tour suivant : " + e.getMessage());
+                    .body("{\"error\": \"Erreur lors de la génération du tour suivant : " + e.getMessage() + "\"}");
         }
     }
-   /* @GetMapping("/terrainsDisponibles/{tournoiId}")
-    public ResponseEntity<List<Terrain>> getTerrainsDisponibles(
-            @PathVariable Integer tournoiId,
-            @RequestParam String dateMatch,
-            @RequestParam String heureMatch) {
 
-        // Convertir les paramètres en LocalDate et LocalTime
-        LocalDate date = LocalDate.parse(dateMatch);
-        LocalTime heure = LocalTime.parse(heureMatch);
 
-        try {
-            List<Terrain> terrainsDisponibles = tournoiService.getTerrainsDisponiblesPourTournoi(tournoiId, date, heure);
-            return ResponseEntity.ok(terrainsDisponibles);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
-        }
-    }
-    */
 
 
     // Endpoint pour affecter un terrain à un match
@@ -198,6 +192,55 @@ public class TournoiController {
         boolean hasMatchs = tournoiService.tournoiADejaDesMatchs(idTournoi);
         return ResponseEntity.ok(hasMatchs);
     }
+    @CrossOrigin(origins = "http://localhost:4200") 
+    @GetMapping(value = "/tournois/{idTournoi}/recap-qrcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getQRCodeRecap(@PathVariable Integer idTournoi) {
+        try {
+            byte[] qrCode = tournoiService.genererRecapQRCode(idTournoi);
+            return ResponseEntity.ok().body(qrCode);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PutMapping("/genererChampionnat/{tournoiId}")
+    public ResponseEntity<String> genererPlanningChampionnat(
+            @PathVariable Integer tournoiId,
+            @RequestParam(defaultValue = "false") boolean allerRetour) {
+        try {
+            String resultat = tournoiService.genererPlanningChampionnat(tournoiId, allerRetour);
+
+            // Encodage propre en JSON
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(Map.of("message", resultat));
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(json);
+
+        } catch (Exception e) {
+            String errorJson = "{\"error\": \"Erreur lors de la génération du planning de championnat : " + e.getMessage().replace("\"", "\\\"") + "\"}";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Content-Type", "application/json")
+                    .body(errorJson);
+        }
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/{tournoiId}/classement")
+    public ResponseEntity<List<ClassementEquipeDTO>> calculerClassement(@PathVariable Integer tournoiId) {
+        try {
+            List<ClassementEquipeDTO> classement = tournoiService.calculerClassement(tournoiId);
+            return ResponseEntity.ok(classement);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
+
 
 }
 

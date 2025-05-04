@@ -42,4 +42,9 @@ public class Equipe {
     private List<TournoiEquipe> tournoiEquipes;
 
 
+    @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Joueur> joueurs;
+
+
 }

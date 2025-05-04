@@ -45,10 +45,10 @@ public class MatchFo {
     @ManyToMany
     // @JoinColumn(name = "id_equipe1")
     List<Equipe> equipes1;
-    @Column( nullable = false)
-    private Integer scoreEquipe1 =0;
-    @Column( nullable = false)
-    private Integer scoreEquipe2 =0;
+    @Column( nullable = true)
+    private Integer scoreEquipe1 = null ;
+    @Column( nullable = true)
+    private Integer scoreEquipe2 = null ;
 
     private LocalDate dateMatch;
     private Time heureMatch;
@@ -66,4 +66,6 @@ public class MatchFo {
     public void setTour(int tour) {
         this.tour = tour;
     }
+
+
 }

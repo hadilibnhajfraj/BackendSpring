@@ -1,4 +1,5 @@
 package tn.esprit.spring.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,14 +24,18 @@ public class Terrain {
     private int prix;
 
     @OneToMany(mappedBy = "terrain", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<MatchFo> matchFos;
 
     @OneToMany(mappedBy = "terrain", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<Reservation> reservations;
 
     @OneToMany(mappedBy = "terrain", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Disponibilite_terrain> disponibilites; // Liste des créneaux
 
     @ManyToOne
+    @JsonIgnore
     private User proprietaire;
 }
