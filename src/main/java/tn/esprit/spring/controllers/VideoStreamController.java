@@ -1,14 +1,9 @@
 package tn.esprit.spring.controllers;
 
-
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +12,7 @@ import java.nio.file.Paths;
 @RequestMapping("/api/videos")
 public class VideoStreamController {
 
-    private final String VIDEO_PATH = "uploads/videos/"; // Remplace par ton fichier vidéo
+    private final String VIDEO_PATH = "uploads/videos/sample.mp4";
 
     @GetMapping("/stream")
     public ResponseEntity<byte[]> streamVideo(@RequestHeader(value = "Range", required = false) String rangeHeader) throws IOException {
@@ -30,5 +25,4 @@ public class VideoStreamController {
 
         return new ResponseEntity<>(videoBytes, headers, HttpStatus.OK);
     }
-
 }

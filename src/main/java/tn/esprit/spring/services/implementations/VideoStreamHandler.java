@@ -1,13 +1,15 @@
 package tn.esprit.spring.services.implementations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class VideoStreamHandler extends TextWebSocketHandler {
@@ -22,7 +24,7 @@ public class VideoStreamHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-        Map<String, Object> data = objectMapper.readValue(message.getPayload(), new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> data = objectMapper.readValue(message.getPayload(), new TypeReference<>() {});
 
         String type = (String) data.get("type");
 
@@ -45,10 +47,11 @@ public class VideoStreamHandler extends TextWebSocketHandler {
         }
     }
 
-
     private void broadcastMessage(TextMessage message) throws IOException {
         for (WebSocketSession s : sessions) {
-            if (s.isOpen()) s.sendMessage(message);
+            if (s.isOpen()) {
+                s.sendMessage(message);
+            }
         }
     }
 
@@ -57,4 +60,3 @@ public class VideoStreamHandler extends TextWebSocketHandler {
         sessions.remove(session);
     }
 }
-
