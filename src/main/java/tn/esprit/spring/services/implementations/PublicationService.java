@@ -53,6 +53,17 @@ public class PublicationService implements PublicationInterface {
             System.out.println("Fichier sauvegardé à : " + filePath.toString());
         }
 
+        // Ajoutez cette ligne juste avant la sauvegarde pour afficher la valeur de isLive
+        System.out.println("Valeur de isLive avant sauvegarde : " + publication.isLive());
+        if (publication.isLive()) {
+            System.out.println("Publication en direct (Live) !");
+        } else {
+            System.out.println("Publication non en direct.");
+        }
+
+        // Enregistrer la publication dans la base de données
+        // Assurez-vous que la date de publication est bien définie avant l'enregistrement
+        publication.setDatePublication(LocalDate.now());
         // Sauvegarder la publication avec ou sans fichier
         return publicationRepository.save(publication);
     }

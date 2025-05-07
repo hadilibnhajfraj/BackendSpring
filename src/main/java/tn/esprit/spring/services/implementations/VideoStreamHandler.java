@@ -31,7 +31,8 @@ public class VideoStreamHandler extends TextWebSocketHandler {
         switch (type) {
             case "startLive":
                 String userId = (String) data.get("userId");
-                broadcastMessage(new TextMessage("{\"type\":\"liveStarted\",\"userId\":\"" + userId + "\"}"));
+                String liveStartedMessage = "{\"type\":\"liveStarted\",\"userId\":\"" + userId + "\"}";
+                broadcastMessage(new TextMessage(liveStartedMessage));
                 break;
             case "stopLive":
                 broadcastMessage(new TextMessage("{\"type\":\"liveStopped\"}"));
@@ -44,16 +45,27 @@ public class VideoStreamHandler extends TextWebSocketHandler {
             case "ice-candidate":
                 broadcastMessage(message);
                 break;
+            default:
+                // Handle any unexpected message type
+                System.err.println("Unknown message type: " + type);
+                break;
         }
     }
+
 
     private void broadcastMessage(TextMessage message) throws IOException {
         for (WebSocketSession s : sessions) {
             if (s.isOpen()) {
-                s.sendMessage(message);
+                try {
+                    s.sendMessage(message);
+                } catch (IOException e) {
+                    // Log or handle error if needed
+                    System.err.println("Error sending message: " + e.getMessage());
+                }
             }
         }
     }
+
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {

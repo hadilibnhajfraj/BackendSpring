@@ -7,7 +7,7 @@ import java.util.List;
 public interface CommentaireInterface {
     Commentaire addCommentaire(Commentaire commentaire, MultipartFile file) throws IOException;
 
-    List<Commentaire> retrieveCommentaires();
+    Commentaire ajouterCommentaire(Commentaire commentaire, int publicationId);
 
     Commentaire updateCommentaire(Commentaire commentaire, MultipartFile file) throws IOException;
 

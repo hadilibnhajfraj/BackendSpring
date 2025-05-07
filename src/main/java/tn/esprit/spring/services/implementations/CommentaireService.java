@@ -3,7 +3,11 @@ package tn.esprit.spring.services.implementations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.entities.Commentaire;
+import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.CommentaireRepository;
+import tn.esprit.spring.repositories.PublicationRepository;
+import tn.esprit.spring.repositories.UserRepository;
 
 
 import java.time.LocalDate;
@@ -15,10 +19,23 @@ import java.util.Optional;
 public class CommentaireService {
 
     private final CommentaireRepository commentaireRepository;
+    private final PublicationRepository publicationRepository;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    // Ajouter un commentaire
-    public Commentaire ajouterCommentaire(Commentaire commentaire) {
-        commentaire.setDateCommentaire(LocalDate.now()); // Définir la date automatiquement
+    public Commentaire ajouterCommentaire(Commentaire commentaire, int publicationId) {
+        // Récupérer l'utilisateur connecté via le token
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Associer publication
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+
+        commentaire.setUser(user);
+        commentaire.setPublication(publication);
+        commentaire.setDateCommentaire(LocalDate.now());
+
         return commentaireRepository.save(commentaire);
     }
 

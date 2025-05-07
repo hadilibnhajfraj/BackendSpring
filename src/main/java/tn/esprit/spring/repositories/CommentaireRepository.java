@@ -7,4 +7,6 @@ import tn.esprit.spring.entities.Commentaire;
 
 @Repository
 public interface CommentaireRepository extends JpaRepository<Commentaire, Integer> {
+
+
 }

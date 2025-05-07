@@ -16,11 +16,12 @@ public class CommentaireController {
     private final CommentaireService commentaireService;
 
     // Ajouter un commentaire
-    @PostMapping("/add")
-    public ResponseEntity<Commentaire> ajouterCommentaire(@RequestBody Commentaire commentaire) {
-        return ResponseEntity.ok(commentaireService.ajouterCommentaire(commentaire));
-    }
 
+    @PostMapping("/ajouter/{publicationId}")
+    public Commentaire ajouterCommentaire(@RequestBody Commentaire commentaire,
+                                          @PathVariable int publicationId) {
+        return commentaireService.ajouterCommentaire(commentaire, publicationId);
+    }
     // Récupérer tous les commentaires
     @GetMapping("/all")
     public ResponseEntity<List<Commentaire>> getAllCommentaires() {
