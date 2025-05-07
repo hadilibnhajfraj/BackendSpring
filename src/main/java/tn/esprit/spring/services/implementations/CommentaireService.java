@@ -79,4 +79,7 @@ public class CommentaireService {
             return commentaireRepository.save(commentaire);
         }).orElseThrow(() -> new RuntimeException("Commentaire non trouvé"));
     }
+    public void save(Commentaire commentaire) {
+        commentaireRepository.save(commentaire);
+    }
 }

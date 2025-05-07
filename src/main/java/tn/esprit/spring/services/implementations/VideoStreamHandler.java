@@ -5,8 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import tn.esprit.spring.entities.Commentaire;
+import tn.esprit.spring.services.implementations.CommentaireService;  // Assurez-vous que ce service existe.
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +19,12 @@ public class VideoStreamHandler extends TextWebSocketHandler {
 
     private static final Set<WebSocketSession> sessions = new HashSet<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final CommentaireService commentaireService;  // Service pour gérer les commentaires
+
+    // Injecter CommentaireService dans le constructeur
+    public VideoStreamHandler(CommentaireService commentaireService) {
+        this.commentaireService = commentaireService;
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -38,6 +47,10 @@ public class VideoStreamHandler extends TextWebSocketHandler {
                 broadcastMessage(new TextMessage("{\"type\":\"liveStopped\"}"));
                 break;
             case "comment":
+                // Enregistrer le commentaire dans la base de données
+                saveCommentToDatabase(data);
+
+                // Diffuser le commentaire à tous les clients
                 broadcastMessage(message);
                 break;
             case "offer":
@@ -52,6 +65,27 @@ public class VideoStreamHandler extends TextWebSocketHandler {
         }
     }
 
+    private void saveCommentToDatabase(Map<String, Object> data) {
+        // Récupérer les informations du commentaire depuis le message
+        String texte = (String) data.get("data");
+        String userId = (String) data.get("userId");  // Assurez-vous que vous avez un ID d'utilisateur pour le commentaire
+        Integer publicationId = (Integer) data.get("publicationId");  // ID de la publication (si nécessaire)
+
+        // Créer un objet Commentaire
+        Commentaire commentaire = new Commentaire();
+        commentaire.setTexte(texte);
+        commentaire.setDateCommentaire(LocalDate.now());
+
+        // Ici, vous devez récupérer l'utilisateur et la publication depuis la base de données, par exemple via un service
+        // Exemple :
+        // User user = userService.findById(userId);
+        // Publication publication = publicationService.findById(publicationId);
+        // commentaire.setUser(user);
+        // commentaire.setPublication(publication);
+
+        // Sauvegarder le commentaire
+        commentaireService.save(commentaire);
+    }
 
     private void broadcastMessage(TextMessage message) throws IOException {
         for (WebSocketSession s : sessions) {
@@ -65,7 +99,6 @@ public class VideoStreamHandler extends TextWebSocketHandler {
             }
         }
     }
-
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
