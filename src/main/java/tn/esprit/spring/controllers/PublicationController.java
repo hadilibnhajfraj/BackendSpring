@@ -37,23 +37,7 @@ public class PublicationController {
 
     @Autowired
     private PublicationRepository publicationRepository;
-    /*@PostMapping("/add")
-    public ResponseEntity<Publication> addPublication(
-            @RequestPart("publication") String publicationJson,
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
-            return ResponseEntity.status(403).body(null);
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
-
-        String email = jwtService.getEmailFromAuthenticatedUser();
-        userRepository.findByEmail(email).ifPresent(publication::setUser);
-
-        return ResponseEntity.ok(publicationService.addPublication(publication, file));
-    }*/
     @PostMapping("/add")
     public ResponseEntity<Publication> addPublication(
             @RequestPart("publication") String publicationJson,
@@ -75,21 +59,7 @@ public class PublicationController {
     }
 
 
- /*   @PutMapping(value = "/updatePublication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Publication> updatePublication(
-            @RequestPart("publication") String publicationJson,
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-        if (!"Presse".equals(jwtService.getAuthenticatedUserRole())) {
-            return ResponseEntity.status(403).body(null);
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Publication publication = objectMapper.readValue(publicationJson, Publication.class);
-
-        return ResponseEntity.ok(publicationService.updatePublication(publication, file));
-    }
-*/
  @PutMapping(value = "/updatePublication/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
  public ResponseEntity<Publication> updatePublication(
          @PathVariable("id") int id,
