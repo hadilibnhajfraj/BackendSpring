@@ -7,20 +7,30 @@ public class ClassementEquipeDTO {
     public int matchsJoues = 0;
     public int butsMarques = 0;
     public int butsEncaisses = 0;
+    public int differenceButs = 0;
 
     public ClassementEquipeDTO(String nomEquipe) {
         this.nomEquipe = nomEquipe;
     }
 
-    // Getters pour le tri
-    public int getPoints() { return points; }
+    public void calculerDifferenceButs() {
+        this.differenceButs = this.butsMarques - this.butsEncaisses;
+    }
+
+    // Getters
     public String getNomEquipe() { return nomEquipe; }
+    public int getPoints() { return points; }
+    public int getMatchsJoues() { return matchsJoues; }
+    public int getButsMarques() { return butsMarques; }
+    public int getButsEncaisses() { return butsEncaisses; }
+    public int getDifferenceButs() { return differenceButs; }
 
     @Override
     public String toString() {
         return nomEquipe + " | Points: " + points +
                 " | MJ: " + matchsJoues +
                 " | BM: " + butsMarques +
-                " | BE: " + butsEncaisses;
+                " | BE: " + butsEncaisses +
+                " | Diff: " + differenceButs;
     }
 }

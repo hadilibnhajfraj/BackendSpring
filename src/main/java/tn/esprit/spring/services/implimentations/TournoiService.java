@@ -536,10 +536,24 @@ public class TournoiService implements ITournoiService {
     public List<ClassementEquipeDTO> calculerClassement(Integer idTournoi) {
         List<MatchFo> matchs = matchFoRepository.findByTournoiIdTournoi(idTournoi);
 
+        // Récupère le tournoi par son ID
+        Tournoi tournoi = tournoiRepository.findById(idTournoi)
+                .orElseThrow(() -> new RuntimeException("Tournoi non trouvé"));
+
+        // Récupérer les équipes associées à ce tournoi via la méthode getEquipesParTournoi
+        List<Equipe> equipes = tournoiEquipeRepository.findAllByTournoi(tournoi).stream()
+                .map(TournoiEquipe::getEquipe)
+                .collect(Collectors.toList());
+
         Map<Equipe, ClassementEquipeDTO> classementMap = new HashMap<>();
 
+        // Initialiser toutes les équipes avec 0
+        for (Equipe equipe : equipes) {
+            classementMap.put(equipe, new ClassementEquipeDTO(equipe.getNom()));
+        }
+
+        // Parcours les matchs joués pour mettre à jour les statistiques
         for (MatchFo match : matchs) {
-            // Vérifie que les scores ne sont pas null
             if (match.getScoreEquipe1() == null || match.getScoreEquipe2() == null) {
                 continue; // match pas encore joué
             }
@@ -549,11 +563,6 @@ public class TournoiService implements ITournoiService {
             int scoreA = match.getScoreEquipe1();
             int scoreB = match.getScoreEquipe2();
 
-            // Initialiser les stats si non existantes
-            classementMap.putIfAbsent(equipeA, new ClassementEquipeDTO(equipeA.getNom()));
-            classementMap.putIfAbsent(equipeB, new ClassementEquipeDTO(equipeB.getNom()));
-
-            // Mise à jour des stats
             ClassementEquipeDTO statsA = classementMap.get(equipeA);
             ClassementEquipeDTO statsB = classementMap.get(equipeB);
 
@@ -566,7 +575,7 @@ public class TournoiService implements ITournoiService {
             statsB.butsMarques += scoreB;
             statsB.butsEncaisses += scoreA;
 
-            // Attribution des points
+            // Calcul des points
             if (scoreA > scoreB) {
                 statsA.points += 3;
             } else if (scoreB > scoreA) {
@@ -577,13 +586,18 @@ public class TournoiService implements ITournoiService {
             }
         }
 
-        // Retourner classement trié par points décroissants
+        // Calculer la différence de buts pour chaque équipe
+        classementMap.values().forEach(ClassementEquipeDTO::calculerDifferenceButs);
+
+        // Tri par points décroissants, puis par différence de buts
         return classementMap.values().stream()
-                .sorted(Comparator.comparingInt(ClassementEquipeDTO::getPoints).reversed())
+                .sorted(Comparator
+                        .comparingInt(ClassementEquipeDTO::getPoints).reversed()
+                        .thenComparing(Comparator.comparingInt(ClassementEquipeDTO::getDifferenceButs).reversed())
+                        .thenComparing(Comparator.comparingInt(ClassementEquipeDTO::getButsMarques).reversed()))
                 .collect(Collectors.toList());
+
     }
 
 
-
-
-}
+    }
