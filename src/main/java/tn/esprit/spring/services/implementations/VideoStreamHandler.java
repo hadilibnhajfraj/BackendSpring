@@ -13,14 +13,14 @@ import tn.esprit.spring.repositories.UserRepository;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 public class VideoStreamHandler extends TextWebSocketHandler {
 
-    private static final Set<WebSocketSession> sessions = new HashSet<>();
+    private static final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final CommentaireService commentaireService;
@@ -46,7 +46,7 @@ public class VideoStreamHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
         System.out.println("Nouvelle connexion WebSocket établie : " + session.getId());
     }
@@ -101,9 +101,18 @@ public class VideoStreamHandler extends TextWebSocketHandler {
 
         // Sauvegarder le commentaire en base de données
         saveCommentToDatabase(data, publicationIdStr);
-        // Diffuser le message à tous les utilisateurs connectés
-        broadcastMessage(new TextMessage(data.toString())); // Utilisation du même message pour la diffusion
+
+        // Diffuser le commentaire dans toutes les sessions
+        String commentText = (String) data.get("data"); // Récupère le texte du commentaire
+        String publicationId = publicationIdStr != null ? publicationIdStr : "unknown"; // ID de publication
+
+        // Crée un message à diffuser contenant le commentaire et son ID de publication
+        String commentMessage = "{\"type\":\"comment\",\"data\":\"" + commentText + "\", \"publicationId\":\"" + publicationId + "\"}";
+
+        // Diffuser à toutes les sessions WebSocket connectées
+        broadcastMessage(new TextMessage(commentMessage));
     }
+
 
     private void handleIceCandidates(TextMessage message) {
         // Diffuser les messages des ICE candidates à tous les utilisateurs connectés
@@ -174,7 +183,6 @@ public class VideoStreamHandler extends TextWebSocketHandler {
         }
     }
 
-
     private void handlePublicationId(Map<String, Object> data) {
         Object pubIdObj = data.get("data");
         if (pubIdObj != null) {
@@ -192,12 +200,13 @@ public class VideoStreamHandler extends TextWebSocketHandler {
     }
 
     private void broadcastMessage(TextMessage message) {
+        // Utilisation de CopyOnWriteArraySet pour une gestion thread-safe
         for (WebSocketSession session : sessions) {
             if (session.isOpen()) {
                 try {
                     session.sendMessage(message);
                 } catch (IOException e) {
-                    System.err.println("Erreur d'envoi du message : " + e.getMessage());
+                    System.err.println("Erreur d'envoi du message à la session " + session.getId() + " : " + e.getMessage());
                 }
             }
         }
