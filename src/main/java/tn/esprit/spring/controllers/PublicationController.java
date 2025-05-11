@@ -170,7 +170,7 @@ public class PublicationController {
         pub.setDatePublication(LocalDate.now());
 
         publicationRepository.save(pub);
-
+        System.out.println("Live démarré avec ID: " + pub.getId());
         return ResponseEntity.ok(pub);
     }
 

@@ -52,4 +52,8 @@ public class UserService {
         String jwt = JwtService.generateToken(user);
         return new AuthResponse(jwt);
     }
+    public User findById(int id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
 }

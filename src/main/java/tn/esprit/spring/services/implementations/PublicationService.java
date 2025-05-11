@@ -137,4 +137,10 @@ public class PublicationService implements PublicationInterface {
         return publicationRepository.findFirstByTypeMediaOrderByDatePublicationDesc("video");
     }
 
+    @Override
+    public Publication findById(int id) {
+        return publicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publication not found with ID: " + id));
+    }
+
 }

@@ -4,8 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, Integer> {
@@ -13,5 +15,5 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
     Publication findFirstByIsLiveTrueOrderByDatePublicationDesc();
     Publication findFirstByTypeMediaOrderByDatePublicationDesc(String type);
     List<Publication> findByUserId(int userId);
-
+    Optional<Publication> findByUserAndIsLiveTrue(User user);
 }

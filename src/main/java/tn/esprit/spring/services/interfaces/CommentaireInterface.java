@@ -22,4 +22,5 @@ public interface CommentaireInterface {
     Commentaire ajouterReaction(int idCommentaire);
 
     Commentaire enleverReaction(int idCommentaire);
+    Commentaire saveCommentaire(Commentaire commentaire);
 }
