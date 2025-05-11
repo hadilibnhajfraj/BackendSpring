@@ -1,0 +1,17 @@
+tn\esprit\spring\controllers\TerrainController.class
+tn\esprit\spring\entities\Planning.class
+tn\esprit\spring\entities\Tournoi.class
+tn\esprit\spring\entities\Billet.class
+tn\esprit\spring\entities\MatchFo.class
+tn\esprit\spring\entities\Disponibilite_terrain.class
+tn\esprit\spring\repositories\TerrainRepository.class
+tn\esprit\spring\entities\Reservation.class
+tn\esprit\spring\BackendPiApplication.class
+tn\esprit\spring\entities\Publication.class
+tn\esprit\spring\entities\Role.class
+tn\esprit\spring\entities\User.class
+tn\esprit\spring\services\Iservice.class
+tn\esprit\spring\services\ServiceIMP.class
+tn\esprit\spring\entities\Commentaire.class
+tn\esprit\spring\entities\Equipe.class
+tn\esprit\spring\entities\Terrain.class
