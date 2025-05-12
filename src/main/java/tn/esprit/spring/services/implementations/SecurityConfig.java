@@ -41,9 +41,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // autoriser pré-vol
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/publications/add").hasAuthority("Presse")
-                .requestMatchers("/publications/mine").hasAuthority("Presse")
+                .requestMatchers("/publications/mine").permitAll()
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
+                .requestMatchers("/publications/publications/**").hasAuthority("Spectateur")
                 .requestMatchers("/start-live/**").hasAuthority("Presse")
+                .requestMatchers("/commentaires/**").permitAll()
+                .requestMatchers("/commentaires/add").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated();

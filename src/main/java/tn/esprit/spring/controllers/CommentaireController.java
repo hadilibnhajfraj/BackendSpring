@@ -31,7 +31,7 @@ public class CommentaireController {
     private final CommentaireRepository commentaireRepository;
     // Ajouter un commentaire
 
-    @PostMapping("/commentaires/add/{publicationId}")
+  /*  @PostMapping("/commentaires/add/{publicationId}")
     public ResponseEntity<Commentaire> ajouterCommentaire(@RequestBody Commentaire commentaire,
                                                           @PathVariable int publicationId) {
         // Vérification du rôle
@@ -57,7 +57,7 @@ public class CommentaireController {
         Commentaire savedCommentaire = commentaireRepository.save(commentaire);
         return ResponseEntity.ok(savedCommentaire);
     }
-
+*/
     // Récupérer tous les commentaires
     @GetMapping("/all")
     public ResponseEntity<List<Commentaire>> getAllCommentaires() {
@@ -71,17 +71,13 @@ public class CommentaireController {
     }
 
     // Mettre à jour un commentaire
-    @PutMapping("/update/{id}")
+/*    @PutMapping("/update/{id}")
     public ResponseEntity<Commentaire> updateCommentaire(@PathVariable Integer id, @RequestBody Commentaire commentaire) {
         return ResponseEntity.ok(commentaireService.updateCommentaire(id, commentaire));
-    }
+    }*/
 
     // Supprimer un commentaire
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteCommentaire(@PathVariable Integer id) {
-        commentaireService.deleteCommentaire(id);
-        return ResponseEntity.ok("Commentaire supprimé avec succès");
-    }
+
 
     // Ajouter une réaction (like)
     @PostMapping("/{id}/like")
@@ -95,7 +91,7 @@ public class CommentaireController {
         return ResponseEntity.ok(commentaireService.enleverReaction(id));
     }
 
-    @PostMapping("/ajouter")
+  /*  @PostMapping("/ajouter")
     public ResponseEntity<?> ajouterCommentaire(@RequestBody Map<String, String> request) {
         String emailCommentateur = jwtService.getEmailFromAuthenticatedUser();
         User userCommentateur = userRepository.findByEmail(emailCommentateur)
@@ -123,4 +119,80 @@ public class CommentaireController {
 
         return ResponseEntity.ok(commentaire);
     }
+*/
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Commentaire> modifierCommentaire(@PathVariable int id, @RequestBody Commentaire commentaire) {
+        Optional<Commentaire> commentaireExistant = commentaireRepository.findById(id);
+        if (commentaireExistant.isPresent()) {
+            Commentaire c = commentaireExistant.get();
+            c.setTexte(commentaire.getTexte());
+            return ResponseEntity.ok(commentaireRepository.save(c));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Supprimer un commentaire
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCommentaire(@PathVariable Integer id) {
+        commentaireService.deleteCommentaire(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/add")
+    public ResponseEntity<?> ajouterCommentaire(@RequestBody Map<String, Object> payload) {
+        try {
+            // ✅ Récupérer le token JWT envoyé par le client
+            String jwtToken = (String) payload.get("userId"); // userId contient en fait le token
+
+            // ✅ Extraire l'email à partir du token JWT
+            String userEmail = (String) payload.get("userId");  // Récupérer l'email de l'utilisateur
+            if (userEmail == null) {
+                System.out.println("Champs manquant : userId (email)");
+            } else {
+                System.out.println("userEmail : " + userEmail);
+            }
+
+            String commentText = (String) payload.get("data");
+            Object pubIdObj = payload.get("publicationId");
+
+            // ✅ Validation des champs
+            if (userEmail == null || commentText == null || commentText.trim().isEmpty() || pubIdObj == null) {
+                return ResponseEntity.badRequest().body("Champs requis manquants");
+            }
+
+            Integer publicationId = Integer.parseInt(pubIdObj.toString());
+
+            // ✅ Récupération des entités
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'email : " + userEmail));
+
+            Publication publication = publicationRepository.findById(publicationId)
+                    .orElseThrow(() -> new RuntimeException("Publication non trouvée avec l'ID : " + publicationId));
+
+            // ✅ Création et sauvegarde du commentaire
+            Commentaire commentaire = new Commentaire(
+                    null,
+                    commentText,
+                    LocalDate.now(),
+                    0,
+                    user,
+                    publication
+            );
+
+            commentaireService.save(commentaire);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Commentaire ajouté avec succès",
+                    "publicationId", publicationId
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'ajout du commentaire : " + e.getMessage());
+        }
+    }
+
 }

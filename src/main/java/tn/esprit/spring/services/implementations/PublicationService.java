@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.spring.entities.Commentaire;
 import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.repositories.CommentaireRepository;
 import tn.esprit.spring.repositories.PublicationRepository;
 import tn.esprit.spring.services.interfaces.PublicationInterface;
 
@@ -24,6 +26,7 @@ import java.util.Optional;
 public class PublicationService implements PublicationInterface {
     PublicationRepository publicationRepository;
     private static final String UPLOAD_DIR = "uploads";
+    private final CommentaireRepository commentaireRepository;
 
     @Override
     public Publication addPublication(Publication publication, MultipartFile file) throws IOException {
@@ -143,4 +146,21 @@ public class PublicationService implements PublicationInterface {
                 .orElseThrow(() -> new RuntimeException("Publication not found with ID: " + id));
     }
 
+
+    @Override
+    public List<Commentaire> getCommentairesByPublicationId(int publicationId) {
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+        return commentaireRepository.findByPublication(publication);
+    }
+
+    // Implémentation de la méthode pour ajouter un commentaire à une publication
+    @Override
+    public Commentaire ajouterCommentaire(int publicationId, Commentaire commentaire) {
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+
+        commentaire.setPublication(publication);
+        return commentaireRepository.save(commentaire);
+    }
 }

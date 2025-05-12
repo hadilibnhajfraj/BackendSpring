@@ -1,4 +1,5 @@
 package tn.esprit.spring.services.interfaces;
+import tn.esprit.spring.entities.Commentaire;
 import tn.esprit.spring.entities.Publication;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.User;
@@ -19,5 +20,9 @@ public interface PublicationInterface {
     Publication getLatestVideo();
 
     Publication findById(int id);
+    // Déclarer la méthode pour ajouter un commentaire
+    Commentaire ajouterCommentaire(int publicationId, Commentaire commentaire);
 
+    // Déclarer la méthode pour récupérer les commentaires d'une publication
+    List<Commentaire> getCommentairesByPublicationId(int publicationId);
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.spring.entities.Commentaire;
 import tn.esprit.spring.entities.Publication;
 
 import tn.esprit.spring.entities.Role;
@@ -23,6 +24,7 @@ import tn.esprit.spring.services.interfaces.PublicationInterface;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -153,6 +155,39 @@ public class PublicationController {
             return ResponseEntity.notFound().build();  // 404 Not Found si l'utilisateur n'est pas trouvé
         }
     }
+    @PreAuthorize("hasRole('spectateur')")
+    @GetMapping("/minepub")
+    @Transactional
+    public ResponseEntity<List<Publication>> getPublicationsForSpectator(@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            System.out.println("Token manquant ou invalide.");
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        String token = authorizationHeader.substring(7);
+        String email = jwtService.getEmailFromAuthenticatedUser();
+        System.out.println("Email extrait du token : " + email);
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            System.out.println("Utilisateur trouvé : " + user.getEmail() + ", Role : " + user.getRole());
+
+            if (Role.Spectateur.equals(user.getRole())) {
+                System.out.println("L'utilisateur est un spectateur.");
+                List<Publication> publications = publicationRepository.findByUserRoleAndIsLiveFalse(Role.Presse);
+                System.out.println("Publications (isLive=false) des utilisateurs Presse : " + publications);
+                return publications.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(publications);
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
+        } else {
+            System.out.println("Utilisateur non trouvé avec l'email : " + email);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @PostMapping("/start-live")
     public ResponseEntity<Publication> startLive() {
         // Vérifie le rôle
@@ -172,6 +207,16 @@ public class PublicationController {
         publicationRepository.save(pub);
         System.out.println("Live démarré avec ID: " + pub.getId());
         return ResponseEntity.ok(pub);
+    }
+    @PostMapping("/publications/{publicationId}/commentaires")
+    public Commentaire ajouterCommentaire(@PathVariable int publicationId, @RequestBody Commentaire commentaire) {
+        // Appeler le service pour ajouter le commentaire à la publication
+        return publicationService.ajouterCommentaire(publicationId, commentaire);
+    }
+    @GetMapping("/publications/{publicationId}/commentaires")
+    public List<Commentaire> getCommentaires(@PathVariable int publicationId) {
+        // Appeler le service pour obtenir les commentaires de la publication
+        return publicationService.getCommentairesByPublicationId(publicationId);
     }
 
 

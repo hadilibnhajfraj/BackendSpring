@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 
 import java.util.List;
@@ -16,4 +17,7 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
     Publication findFirstByTypeMediaOrderByDatePublicationDesc(String type);
     List<Publication> findByUserId(int userId);
     Optional<Publication> findByUserAndIsLiveTrue(User user);
+    List<Publication> findByUserRole(Role role);
+
+    List<Publication> findByUserRoleAndIsLiveFalse(Role role);
 }

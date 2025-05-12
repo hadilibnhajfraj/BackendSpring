@@ -61,14 +61,15 @@ public class CommentaireService {
     }
 
     // Mettre à jour un commentaire
-    public Commentaire updateCommentaire(Integer id, Commentaire commentaireDetails) {
-        return commentaireRepository.findById(id).map(commentaire -> {
-            commentaire.setTexte(commentaireDetails.getTexte());
-            return commentaireRepository.save(commentaire);
-        }).orElseThrow(() -> new RuntimeException("Commentaire non trouvé"));
+    public Commentaire updateCommentaire(Integer id, String newText) {
+        Commentaire commentaire = commentaireRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Commentaire non trouvé"));
+        commentaire.setTexte(newText);
+        return commentaireRepository.save(commentaire);
     }
 
     // Supprimer un commentaire
+
     public void deleteCommentaire(Integer id) {
         commentaireRepository.deleteById(id);
     }
