@@ -18,6 +18,7 @@ import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.PublicationRepository;
 import tn.esprit.spring.repositories.UserRepository;
+import tn.esprit.spring.services.implementations.CommentaireService;
 import tn.esprit.spring.services.implementations.JwtService;
 import tn.esprit.spring.services.interfaces.PublicationInterface;
 
@@ -36,7 +37,7 @@ public class PublicationController {
     private final PublicationInterface publicationService;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-
+    private final CommentaireService commentaireService;
     @Autowired
     private PublicationRepository publicationRepository;
 
@@ -208,16 +209,32 @@ public class PublicationController {
         System.out.println("Live démarré avec ID: " + pub.getId());
         return ResponseEntity.ok(pub);
     }
-    @PostMapping("/publications/{publicationId}/commentaires")
-    public Commentaire ajouterCommentaire(@PathVariable int publicationId, @RequestBody Commentaire commentaire) {
-        // Appeler le service pour ajouter le commentaire à la publication
-        return publicationService.ajouterCommentaire(publicationId, commentaire);
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping("/{publicationId}/commentaires")
+    public ResponseEntity<Commentaire> ajouterCommentaire(@PathVariable int publicationId, @RequestBody Commentaire commentaire) {
+        // Vérifier que l'utilisateur a le rôle "Spectateur"
+        if (!"Spectateur".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        Commentaire newCommentaire = commentaireService.ajouterCommentaire(publicationId, commentaire);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newCommentaire);
     }
-    @GetMapping("/publications/{publicationId}/commentaires")
-    public List<Commentaire> getCommentaires(@PathVariable int publicationId) {
-        // Appeler le service pour obtenir les commentaires de la publication
-        return publicationService.getCommentairesByPublicationId(publicationId);
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/{publicationId}/commentaires")
+    public ResponseEntity<List<Commentaire>> getCommentaires(@PathVariable int publicationId) {
+        // Vérifier que l'utilisateur a le rôle "Spectateur"
+        if (!"Spectateur".equals(jwtService.getAuthenticatedUserRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        // Récupérer les commentaires de la publication
+        List<Commentaire> commentaires = commentaireService.getCommentairesByPublicationId(publicationId);
+        return ResponseEntity.ok(commentaires);
     }
+
+
 
 
 }

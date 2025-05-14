@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // autoriser pré-vol
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/publications/add").hasAuthority("Presse")
                 .requestMatchers("/publications/mine").permitAll()
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")

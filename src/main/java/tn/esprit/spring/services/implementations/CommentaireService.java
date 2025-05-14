@@ -112,5 +112,21 @@ public class CommentaireService {
             commentaireRepository.save(commentaire);
         }
     }
+    public List<Commentaire> getCommentairesByPublicationId(int publicationId) {
+        // Récupérer la publication par son ID
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
 
+        // Récupérer les commentaires associés à cette publication
+        return commentaireRepository.findByPublication(publication);
+    }
+    public Commentaire ajouterCommentaire(int publicationId, Commentaire commentaire) {
+        // Récupérer la publication par son ID
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+
+        // Associer le commentaire à la publication
+        commentaire.setPublication(publication);
+        return commentaireRepository.save(commentaire);
+    }
 }
