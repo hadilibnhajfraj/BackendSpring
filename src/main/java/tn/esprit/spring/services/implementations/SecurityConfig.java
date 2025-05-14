@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/publications/mine").permitAll()
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
                 .requestMatchers("/publications/publications/**").hasAuthority("Spectateur")
+                .requestMatchers("/commentaires/**").hasAuthority("Spectateur")
                 .requestMatchers("/start-live/**").hasAuthority("Presse")
                 .requestMatchers("/commentaires/**").permitAll()
                 .requestMatchers("/commentaires/add").permitAll()

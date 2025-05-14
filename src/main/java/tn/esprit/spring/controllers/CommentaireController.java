@@ -195,4 +195,14 @@ public class CommentaireController {
         }
     }
 
+    @PutMapping("/{id}/reaction/increment")
+    public ResponseEntity<Commentaire> incrementerReaction(@PathVariable Integer id) {
+        return ResponseEntity.ok(commentaireService.incrementerReaction(id));
+    }
+
+
+    @PutMapping("/{id}/reaction/decrement")
+    public ResponseEntity<Commentaire> decrementerReaction(@PathVariable Integer id) {
+        return ResponseEntity.ok(commentaireService.decrementerReaction(id));
+    }
 }

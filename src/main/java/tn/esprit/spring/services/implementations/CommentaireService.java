@@ -129,4 +129,25 @@ public class CommentaireService {
         commentaire.setPublication(publication);
         return commentaireRepository.save(commentaire);
     }
+    // Ajouter ou mettre à jour une réaction
+    // Incrémenter les réactions (ajouter une réaction)
+    public Commentaire incrementerReaction(Integer commentaireId) {
+        Commentaire commentaire = commentaireRepository.findById(commentaireId)
+                .orElseThrow(() -> new RuntimeException("Commentaire introuvable"));
+
+        commentaire.setNombreReactions(commentaire.getNombreReactions() + 1);
+        return commentaireRepository.save(commentaire);
+    }
+
+    // Décrémenter les réactions (supprimer une réaction)
+    public Commentaire decrementerReaction(Integer commentaireId) {
+        Commentaire commentaire = commentaireRepository.findById(commentaireId)
+                .orElseThrow(() -> new RuntimeException("Commentaire introuvable"));
+
+        if (commentaire.getNombreReactions() > 0) {
+            commentaire.setNombreReactions(commentaire.getNombreReactions() - 1);
+        }
+
+        return commentaireRepository.save(commentaire);
+    }
 }
