@@ -192,16 +192,7 @@ public class TournoiController {
         boolean hasMatchs = tournoiService.tournoiADejaDesMatchs(idTournoi);
         return ResponseEntity.ok(hasMatchs);
     }
-    @CrossOrigin(origins = "http://localhost:4200") 
-    @GetMapping(value = "/tournois/{idTournoi}/recap-qrcode", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getQRCodeRecap(@PathVariable Integer idTournoi) {
-        try {
-            byte[] qrCode = tournoiService.genererRecapQRCode(idTournoi);
-            return ResponseEntity.ok().body(qrCode);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping("/genererChampionnat/{tournoiId}")

@@ -30,7 +30,6 @@ public interface ITournoiService {
     boolean tournoiADejaDesMatchs(Integer idTournoi);
     List<Equipe> getEquipesNonInscrites(Integer tournoiId);
 
-    byte[] genererRecapQRCode(Integer idTournoi) throws Exception;
 
     String genererPlanningChampionnat(Integer tournoiId, boolean allerRetour);
     List<ClassementEquipeDTO> calculerClassement(Integer tournoiId);

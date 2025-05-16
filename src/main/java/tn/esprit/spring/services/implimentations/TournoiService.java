@@ -7,12 +7,7 @@ import org.springframework.stereotype.Service;
 import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.*;
 import tn.esprit.spring.services.interfaces.ITournoiService;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
 
-import java.io.ByteArrayOutputStream;
 
 
 
@@ -34,7 +29,7 @@ public class TournoiService implements ITournoiService {
     private final TournoiEquipeRepository tournoiEquipeRepository;
     private final MatchFoRepository matchFoRepository;
     private final TerrainRepository terrainRepository;
-    private final PlanningRepository planningRepository;
+
 
 
     @Override
@@ -323,111 +318,8 @@ public class TournoiService implements ITournoiService {
         matchFoRepository.save(match);
     }
 
-    public byte[] genererRecapQRCode(Integer idTournoi) throws Exception {
-        Tournoi tournoi = tournoiRepository.findById(idTournoi)
-                .orElseThrow(() -> new NoSuchElementException("Tournoi introuvable"));
 
-        List<MatchFo> matchs = matchFoRepository.findByTournoiIdTournoi(idTournoi);
 
-        if (matchs.isEmpty()) {
-            throw new IllegalStateException("Aucun match trouvé pour ce tournoi.");
-        }
-
-        Map<Equipe, Integer> butsParEquipe = new HashMap<>();
-        Map<Equipe, Integer> butsEncaisses = new HashMap<>();
-        Map<Equipe, Integer> victoires = new HashMap<>();
-        Map<Equipe, Integer> defaites = new HashMap<>();
-        Set<Equipe> equipesEncoreEnJeu = new HashSet<>();
-
-        for (MatchFo match : matchs) {
-            if (match.getScoreEquipe1() != null && match.getScoreEquipe2() != null) {
-                List<Equipe> equipes = match.getEquipes1();
-                if (equipes.size() != 2) continue;
-
-                Equipe eq1 = equipes.get(0);
-                Equipe eq2 = equipes.get(1);
-                int score1 = match.getScoreEquipe1();
-                int score2 = match.getScoreEquipe2();
-
-                // Buts marqués
-                butsParEquipe.put(eq1, butsParEquipe.getOrDefault(eq1, 0) + score1);
-                butsParEquipe.put(eq2, butsParEquipe.getOrDefault(eq2, 0) + score2);
-
-                // Buts encaissés
-                butsEncaisses.put(eq1, butsEncaisses.getOrDefault(eq1, 0) + score2);
-                butsEncaisses.put(eq2, butsEncaisses.getOrDefault(eq2, 0) + score1);
-
-                // Résultats
-                if (score1 > score2) {
-                    victoires.put(eq1, victoires.getOrDefault(eq1, 0) + 1);
-                    defaites.put(eq2, defaites.getOrDefault(eq2, 0) + 1);
-                    equipesEncoreEnJeu.add(eq1);
-                    equipesEncoreEnJeu.remove(eq2);
-                } else if (score2 > score1) {
-                    victoires.put(eq2, victoires.getOrDefault(eq2, 0) + 1);
-                    defaites.put(eq1, defaites.getOrDefault(eq1, 0) + 1);
-                    equipesEncoreEnJeu.add(eq2);
-                    equipesEncoreEnJeu.remove(eq1);
-                }
-            }
-        }
-
-        if (equipesEncoreEnJeu.size() != 1) {
-            throw new IllegalStateException("Le tournoi n'est pas encore terminé.");
-        }
-
-        Equipe gagnante = equipesEncoreEnJeu.iterator().next();
-
-        int totalButs = butsParEquipe.values().stream().mapToInt(Integer::intValue).sum();
-        int totalMatchs = matchs.size();
-        double moyenneButsParMatch = totalMatchs > 0 ? (double) totalButs / totalMatchs : 0.0;
-
-        Equipe meilleureAttaque = butsParEquipe.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
-
-        Equipe meilleureDefense = butsEncaisses.entrySet().stream()
-                .min(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
-
-        // Construction du résumé
-        StringBuilder recap = new StringBuilder();
-        recap.append("Tournoi : ").append(tournoi.getNom()).append("\n");
-        recap.append("Équipe gagnante : ").append(gagnante.getNom()).append("\n");
-        recap.append("Total des buts : ").append(totalButs).append("\n");
-        recap.append("Moyenne buts / match : ").append(String.format("%.2f", moyenneButsParMatch)).append("\n");
-        recap.append("Meilleure attaque : ").append(meilleureAttaque != null ? meilleureAttaque.getNom() : "N/A").append("\n");
-        recap.append("Meilleure défense : ").append(meilleureDefense != null ? meilleureDefense.getNom() : "N/A").append("\n");
-        recap.append("Statistiques par équipe :\n");
-
-        Set<Equipe> toutesLesEquipes = new HashSet<>();
-        toutesLesEquipes.addAll(butsParEquipe.keySet());
-        toutesLesEquipes.addAll(butsEncaisses.keySet());
-
-        for (Equipe equipe : toutesLesEquipes) {
-            int buts = butsParEquipe.getOrDefault(equipe, 0);
-            int encaisses = butsEncaisses.getOrDefault(equipe, 0);
-            int diff = buts - encaisses;
-            int win = victoires.getOrDefault(equipe, 0);
-            int lose = defaites.getOrDefault(equipe, 0);
-            recap.append("- ").append(equipe.getNom())
-                    .append(" | Buts: ").append(buts)
-                    .append(", Encaissés: ").append(encaisses)
-                    .append(", Diff: ").append(diff)
-                    .append(", V: ").append(win)
-                    .append(", D: ").append(lose)
-                    .append("\n");
-        }
-
-        return genererQRCode(recap.toString(), 300, 300);
-    }
-
-    public byte[] genererQRCode(String data, int width, int height) throws Exception {
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, width, height);
-
-        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
-        return pngOutputStream.toByteArray();
-    }
 
     @Transactional
     public String genererPlanningChampionnat(Integer idTournoi, boolean allerRetour) {
@@ -598,6 +490,7 @@ public class TournoiService implements ITournoiService {
                 .collect(Collectors.toList());
 
     }
+
 
 
     }
