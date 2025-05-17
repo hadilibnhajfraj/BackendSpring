@@ -9,6 +9,11 @@ public class ClassementEquipeDTO {
     public int butsEncaisses = 0;
     public int differenceButs = 0;
 
+    // ✅ Nouveaux champs
+    public int cartonsJaunes = 0;
+    public int cartonsRouges = 0;
+    public int corners = 0;
+
     public ClassementEquipeDTO(String nomEquipe) {
         this.nomEquipe = nomEquipe;
     }
@@ -25,12 +30,20 @@ public class ClassementEquipeDTO {
     public int getButsEncaisses() { return butsEncaisses; }
     public int getDifferenceButs() { return differenceButs; }
 
+    // ✅ Nouveaux getters
+    public int getCartonsJaunes() { return cartonsJaunes; }
+    public int getCartonsRouges() { return cartonsRouges; }
+    public int getCorners() { return corners; }
+
     @Override
     public String toString() {
         return nomEquipe + " | Points: " + points +
                 " | MJ: " + matchsJoues +
                 " | BM: " + butsMarques +
                 " | BE: " + butsEncaisses +
-                " | Diff: " + differenceButs;
+                " | Diff: " + differenceButs +
+                " | CJ: " + cartonsJaunes +
+                " | CR: " + cartonsRouges +
+                " | Corners: " + corners;
     }
 }

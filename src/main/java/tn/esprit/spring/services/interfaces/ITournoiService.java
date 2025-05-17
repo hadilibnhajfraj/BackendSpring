@@ -1,11 +1,9 @@
 package tn.esprit.spring.services.interfaces;
 
-import jakarta.transaction.Transactional;
 import tn.esprit.spring.entities.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 public interface ITournoiService {
     Tournoi createTournoi(Tournoi tournoi);
@@ -19,7 +17,18 @@ public interface ITournoiService {
     // Récupère les équipes inscrites à un tournoi
     List<Equipe> getEquipesParTournoi(Integer tournoiId);
     String genererTourSuivant(Integer tournoiId);
-    public String mettreAJourScores(Integer matchId, int scoreEquipe1, int scoreEquipe2);
+    public String mettreAJourScores(
+            Integer matchId,
+            int scoreEquipe1,
+            int scoreEquipe2,
+            int cartonsJaunesEquipe1,
+            int cartonsRougesEquipe1,
+            int cornersEquipe1,
+            int cartonsJaunesEquipe2,
+            int cartonsRougesEquipe2,
+            int cornersEquipe2
+    );
+
     String genererPremierTour(Integer tournoiId);
  //   List<Terrain> getTerrainsDisponiblesPourTournoi(Integer tournoiId, LocalDate dateMatch, LocalTime heureMatch);
 
@@ -33,7 +42,7 @@ public interface ITournoiService {
 
     String genererPlanningChampionnat(Integer tournoiId, boolean allerRetour);
     List<ClassementEquipeDTO> calculerClassement(Integer tournoiId);
-
+    List<Map<String, Object>> getStatistiquesParMatch(Integer matchId);
 
 
 

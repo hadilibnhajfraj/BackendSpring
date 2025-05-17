@@ -9,13 +9,6 @@ import tn.esprit.spring.repositories.*;
 import tn.esprit.spring.services.interfaces.ITournoiService;
 
 
-
-
-
-
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -227,19 +220,32 @@ public class TournoiService implements ITournoiService {
     }
 
     @Transactional
-    @Override
-    public String mettreAJourScores(Integer matchId, int scoreEquipe1, int scoreEquipe2) {
+
+    public String mettreAJourScores(Integer matchId, int scoreEquipe1, int scoreEquipe2,
+                                    int cj1, int cr1, int corner1,
+                                    int cj2, int cr2, int corner2) {
+
         MatchFo match = matchFoRepository.findById(matchId)
                 .orElseThrow(() -> new NoSuchElementException("Match introuvable"));
 
         match.setScoreEquipe1(scoreEquipe1);
         match.setScoreEquipe2(scoreEquipe2);
 
-        Equipe equipeGagnante = scoreEquipe1 > scoreEquipe2 ? match.getEquipes1().get(0) : match.getEquipes1().get(1);
+        match.setCartonsJaunesEquipe1(cj1);
+        match.setCartonsRougesEquipe1(cr1);
+        match.setCornersEquipe1(corner1);
+
+        match.setCartonsJaunesEquipe2(cj2);
+        match.setCartonsRougesEquipe2(cr2);
+        match.setCornersEquipe2(corner2);
+
+        Equipe equipeGagnante = scoreEquipe1 > scoreEquipe2
+                ? match.getEquipes1().get(0)
+                : match.getEquipes1().get(1);
 
         matchFoRepository.save(match);
 
-        return "Scores mis à jour avec succès ! Équipe gagnante : " + equipeGagnante.getNom();
+        return "Scores et statistiques mis à jour avec succès ! Équipe gagnante : " + equipeGagnante.getNom();
     }
 
 
@@ -491,6 +497,44 @@ public class TournoiService implements ITournoiService {
 
     }
 
+    @Override
+    public List<Map<String, Object>> getStatistiquesParMatch(Integer matchId) {
+        Optional<MatchFo> matchOpt = matchFoRepository.findById(matchId);
+        if (matchOpt.isEmpty()) {
+            throw new RuntimeException("Match non trouvé avec id : " + matchId);
+        }
+        MatchFo match = matchOpt.get();
 
+        List<Map<String, Object>> stats = new ArrayList<>();
 
+        List<Equipe> equipes = match.getEquipes1();
+        if (equipes.size() < 2) {
+            throw new RuntimeException("Match avec moins de 2 équipes");
+        }
+
+        Map<String, Object> equipe1Stats = new HashMap<>();
+        equipe1Stats.put("matchId", match.getIdMatch());
+        equipe1Stats.put("equipe", equipes.get(0).getNom());
+        equipe1Stats.put("score", match.getScoreEquipe1());
+        equipe1Stats.put("cartonsJaunes", match.getCartonsJaunesEquipe1());
+        equipe1Stats.put("cartonsRouges", match.getCartonsRougesEquipe1());
+        equipe1Stats.put("corners", match.getCornersEquipe1());
+
+        Map<String, Object> equipe2Stats = new HashMap<>();
+        equipe2Stats.put("matchId", match.getIdMatch());
+        equipe2Stats.put("equipe", equipes.get(1).getNom());
+        equipe2Stats.put("score", match.getScoreEquipe2());
+        equipe2Stats.put("cartonsJaunes", match.getCartonsJaunesEquipe2());
+        equipe2Stats.put("cartonsRouges", match.getCartonsRougesEquipe2());
+        equipe2Stats.put("corners", match.getCornersEquipe2());
+
+        stats.add(equipe1Stats);
+        stats.add(equipe2Stats);
+
+        return stats;
     }
+
+
+
+
+}

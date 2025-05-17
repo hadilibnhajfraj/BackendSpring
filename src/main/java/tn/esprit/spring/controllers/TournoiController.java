@@ -137,15 +137,32 @@ public class TournoiController {
     public ResponseEntity<String> mettreAJourScores(
             @PathVariable Integer matchId,
             @RequestParam int scoreEquipe1,
-            @RequestParam int scoreEquipe2) {
+            @RequestParam int scoreEquipe2,
+            @RequestParam int cartonsJaunesEquipe1,
+            @RequestParam int cartonsRougesEquipe1,
+            @RequestParam int cornersEquipe1,
+            @RequestParam int cartonsJaunesEquipe2,
+            @RequestParam int cartonsRougesEquipe2,
+            @RequestParam int cornersEquipe2) {
         try {
-            tournoiService.mettreAJourScores(matchId, scoreEquipe1, scoreEquipe2);
-            return ResponseEntity.ok("{\"message\": \"Scores mis à jour avec succès !\"}");
+            tournoiService.mettreAJourScores(
+                    matchId,
+                    scoreEquipe1,
+                    scoreEquipe2,
+                    cartonsJaunesEquipe1,
+                    cartonsRougesEquipe1,
+                    cornersEquipe1,
+                    cartonsJaunesEquipe2,
+                    cartonsRougesEquipe2,
+                    cornersEquipe2
+            );
+            return ResponseEntity.ok("{\"message\": \"Scores et statistiques mis à jour avec succès !\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"Erreur lors de la mise à jour des scores : " + e.getMessage() + "\"}");
+                    .body("{\"error\": \"Erreur lors de la mise à jour : " + e.getMessage() + "\"}");
         }
     }
+
 
 
 
@@ -230,7 +247,16 @@ public class TournoiController {
         }
     }
 
-
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/getStatistiquesParMatch/match/{matchId}")
+    public ResponseEntity<List<Map<String, Object>>> getStatistiquesParMatch(@PathVariable Integer matchId) {
+        try {
+            List<Map<String, Object>> stats = tournoiService.getStatistiquesParMatch(matchId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
 }
