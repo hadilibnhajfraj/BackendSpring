@@ -9,14 +9,19 @@ public class ClassementEquipeDTO {
     public int butsEncaisses = 0;
     public int differenceButs = 0;
 
+    private String logo;
+
+
     // ✅ Nouveaux champs
     public int cartonsJaunes = 0;
     public int cartonsRouges = 0;
     public int corners = 0;
 
-    public ClassementEquipeDTO(String nomEquipe) {
+    public ClassementEquipeDTO(String nomEquipe, String logo) {
         this.nomEquipe = nomEquipe;
+        this.logo = logo;
     }
+
 
     public void calculerDifferenceButs() {
         this.differenceButs = this.butsMarques - this.butsEncaisses;
@@ -34,6 +39,10 @@ public class ClassementEquipeDTO {
     public int getCartonsJaunes() { return cartonsJaunes; }
     public int getCartonsRouges() { return cartonsRouges; }
     public int getCorners() { return corners; }
+    public String getLogo() {
+        return logo;
+    }
+
 
     @Override
     public String toString() {

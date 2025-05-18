@@ -46,5 +46,5 @@ public class Equipe {
     @JsonIgnore
     List<Joueur> joueurs;
 
-
+    public String getLogo() { return logo; }
 }

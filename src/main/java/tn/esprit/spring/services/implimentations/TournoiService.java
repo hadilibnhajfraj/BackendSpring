@@ -447,7 +447,7 @@ public class TournoiService implements ITournoiService {
 
         // Initialiser toutes les équipes avec 0
         for (Equipe equipe : equipes) {
-            classementMap.put(equipe, new ClassementEquipeDTO(equipe.getNom()));
+            classementMap.put(equipe, new ClassementEquipeDTO(equipe.getNom(), equipe.getLogo()));
         }
 
         // Parcours les matchs joués pour mettre à jour les statistiques
