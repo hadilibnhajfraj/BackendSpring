@@ -15,10 +15,11 @@ public class ReactionCommentaire {
     private Integer id;
 
     private String type; // ❤️, 😂, 😢, 😡
-
     @ManyToOne
+    @JoinColumn(name = "commentaire_id", nullable = false)
     private Commentaire commentaire;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

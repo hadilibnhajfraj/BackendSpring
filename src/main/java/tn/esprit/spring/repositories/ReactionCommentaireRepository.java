@@ -8,6 +8,7 @@ import tn.esprit.spring.entities.ReactionCommentaire;
 import tn.esprit.spring.entities.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReactionCommentaireRepository extends JpaRepository<ReactionCommentaire, Integer> {
@@ -16,4 +17,7 @@ public interface ReactionCommentaireRepository extends JpaRepository<ReactionCom
 
     // Pour récupérer les réactions par commentaire
     List<ReactionCommentaire> findByCommentaireId(Integer commentaireId);
+    void deleteByUserAndCommentaireAndType(User user, Commentaire commentaire, String type);
+    long countByCommentaire(Commentaire commentaire);
+    Optional<ReactionCommentaire> findByUserAndCommentaire(User user, Commentaire commentaire);
 }

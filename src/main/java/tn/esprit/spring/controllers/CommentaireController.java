@@ -1,4 +1,5 @@
 package tn.esprit.spring.controllers;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -208,34 +209,53 @@ public class CommentaireController {
     public ResponseEntity<Commentaire> decrementerReaction(@PathVariable Integer id) {
         return ResponseEntity.ok(commentaireService.decrementerReaction(id));
     }
+
     @PostMapping("/commentaires/{id}/react")
+    @Transactional
     public ResponseEntity<?> reactToComment(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
         String emoji = payload.get("reaction");
         String email = payload.get("email");
 
-        User user = userRepository.findByEmail(email).orElseThrow();
-        Commentaire commentaire = commentaireRepository.findById(id).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Commentaire commentaire = commentaireRepository.findById(id).orElseThrow(() -> new RuntimeException("Commentaire non trouvé"));
 
-        // Supprimer ancienne réaction de cet utilisateur (facultatif)
-        reactionCommentaireRepository.deleteByUserAndCommentaire(user, commentaire);
+        // Vérifie s'il a déjà réagi
+        Optional<ReactionCommentaire> existingReactionOpt = reactionCommentaireRepository.findByUserAndCommentaire(user, commentaire);
 
-        // Ajouter la nouvelle
-        ReactionCommentaire reaction = new ReactionCommentaire();
-        reaction.setUser(user);
-        reaction.setCommentaire(commentaire);
-        reaction.setType(emoji);
-        reactionCommentaireRepository.save(reaction);
+        if (existingReactionOpt.isPresent()) {
+            ReactionCommentaire existingReaction = existingReactionOpt.get();
+            // S'il a mis le même emoji, on ne fait rien
+            if (!existingReaction.getType().equals(emoji)) {
+                existingReaction.setType(emoji); // changer le type
+                reactionCommentaireRepository.save(existingReaction); // mettre à jour
+            }
+        } else {
+            // Créer nouvelle réaction
+            ReactionCommentaire reaction = new ReactionCommentaire();
+            reaction.setUser(user);
+            reaction.setCommentaire(commentaire);
+            reaction.setType(emoji);
+            reactionCommentaireRepository.save(reaction);
+        }
 
-        return ResponseEntity.ok("Réaction enregistrée");
+        // Mettre à jour le total
+        long count = reactionCommentaireRepository.countByCommentaire(commentaire);
+        commentaire.setNombreReactions((int) count);
+        commentaireRepository.save(commentaire);
+
+        return ResponseEntity.ok("Réaction enregistrée/modifiée");
     }
-    @GetMapping("/commentaires/{id}/reactions")
+
+
+
+    @GetMapping("/{id}/reactions")
     public ResponseEntity<Map<String, Long>> getReactionsCount(@PathVariable Integer id) {
         List<ReactionCommentaire> reactions = reactionCommentaireRepository.findByCommentaireId(id);
 
         Map<String, Long> counts = reactions.stream()
                 .collect(Collectors.groupingBy(ReactionCommentaire::getType, Collectors.counting()));
 
-        return ResponseEntity.ok(counts); // ex: { "❤️": 2, "😂": 1 }
+        return ResponseEntity.ok(counts);
     }
 
 
