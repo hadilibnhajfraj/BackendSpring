@@ -219,32 +219,36 @@ public class CommentaireController {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         Commentaire commentaire = commentaireRepository.findById(id).orElseThrow(() -> new RuntimeException("Commentaire non trouvé"));
 
-        // Vérifie s'il a déjà réagi
-        Optional<ReactionCommentaire> existingReactionOpt = reactionCommentaireRepository.findByUserAndCommentaire(user, commentaire);
-
-        if (existingReactionOpt.isPresent()) {
-            ReactionCommentaire existingReaction = existingReactionOpt.get();
-            // S'il a mis le même emoji, on ne fait rien
-            if (!existingReaction.getType().equals(emoji)) {
-                existingReaction.setType(emoji); // changer le type
-                reactionCommentaireRepository.save(existingReaction); // mettre à jour
-            }
-        } else {
-            // Créer nouvelle réaction
-            ReactionCommentaire reaction = new ReactionCommentaire();
-            reaction.setUser(user);
-            reaction.setCommentaire(commentaire);
-            reaction.setType(emoji);
-            reactionCommentaireRepository.save(reaction);
+        // ✅ Vérification du rôle
+        if (!"Spectateur".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Seuls les spectateurs peuvent réagir à un commentaire.");
         }
 
-        // Mettre à jour le total
+        // Cherche une réaction existante
+        Optional<ReactionCommentaire> existingReaction = reactionCommentaireRepository.findByUserAndCommentaire(user, commentaire);
+
+        if (existingReaction.isPresent()) {
+            ReactionCommentaire reaction = existingReaction.get();
+            if (!reaction.getType().equals(emoji)) {
+                reaction.setType(emoji);
+                reactionCommentaireRepository.save(reaction);
+            }
+        } else {
+            ReactionCommentaire newReaction = new ReactionCommentaire();
+            newReaction.setUser(user);
+            newReaction.setCommentaire(commentaire);
+            newReaction.setType(emoji);
+            reactionCommentaireRepository.save(newReaction);
+        }
+
+        // Mettre à jour le nombre total de réactions
         long count = reactionCommentaireRepository.countByCommentaire(commentaire);
         commentaire.setNombreReactions((int) count);
         commentaireRepository.save(commentaire);
 
-        return ResponseEntity.ok("Réaction enregistrée/modifiée");
+        return ResponseEntity.ok("Réaction enregistrée ou modifiée.");
     }
+
 
 
 
