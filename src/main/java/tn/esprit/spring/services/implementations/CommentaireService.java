@@ -150,4 +150,8 @@ public class CommentaireService {
 
         return commentaireRepository.save(commentaire);
     }
+    public long getCommentCountForPublication(Integer publicationId) {
+        return commentaireRepository.countByPublicationId(publicationId);
+    }
+
 }

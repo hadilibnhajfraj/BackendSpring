@@ -20,4 +20,7 @@ public interface ReactionCommentaireRepository extends JpaRepository<ReactionCom
     void deleteByUserAndCommentaireAndType(User user, Commentaire commentaire, String type);
     long countByCommentaire(Commentaire commentaire);
     Optional<ReactionCommentaire> findByUserAndCommentaire(User user, Commentaire commentaire);
+    Optional<ReactionCommentaire> findByUserIdAndCommentaireId(Integer userId, Integer commentaireId);
+    Optional<ReactionCommentaire> findByUserEmailAndCommentaireId(String email, Integer commentaireId);
+
 }

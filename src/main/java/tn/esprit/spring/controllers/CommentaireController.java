@@ -261,6 +261,15 @@ public class CommentaireController {
 
         return ResponseEntity.ok(counts);
     }
+    @GetMapping("/commentaires/{commentId}/reaction/user")
+    public ResponseEntity<ReactionCommentaire> getReactionByUser(
+            @PathVariable Integer commentId,
+            @RequestParam String email) {
+        return reactionCommentaireRepository.findByUserEmailAndCommentaireId(email, commentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
 
 
 }
