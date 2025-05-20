@@ -3,12 +3,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.entities.Commentaire;
 import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.ReactionCommentaire;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.CommentaireRepository;
 import tn.esprit.spring.repositories.PublicationRepository;
+import tn.esprit.spring.repositories.ReactionCommentaireRepository;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.implementations.CommentaireService;
 import tn.esprit.spring.services.implementations.JwtService;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/commentaires")
@@ -29,6 +31,7 @@ public class CommentaireController {
     private final UserRepository userRepository;
     private final PublicationRepository publicationRepository;
     private final CommentaireRepository commentaireRepository;
+    private final ReactionCommentaireRepository reactionCommentaireRepository;
     // Ajouter un commentaire
 
   /*  @PostMapping("/commentaires/add/{publicationId}")
@@ -205,4 +208,35 @@ public class CommentaireController {
     public ResponseEntity<Commentaire> decrementerReaction(@PathVariable Integer id) {
         return ResponseEntity.ok(commentaireService.decrementerReaction(id));
     }
+    @PostMapping("/commentaires/{id}/react")
+    public ResponseEntity<?> reactToComment(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
+        String emoji = payload.get("reaction");
+        String email = payload.get("email");
+
+        User user = userRepository.findByEmail(email).orElseThrow();
+        Commentaire commentaire = commentaireRepository.findById(id).orElseThrow();
+
+        // Supprimer ancienne réaction de cet utilisateur (facultatif)
+        reactionCommentaireRepository.deleteByUserAndCommentaire(user, commentaire);
+
+        // Ajouter la nouvelle
+        ReactionCommentaire reaction = new ReactionCommentaire();
+        reaction.setUser(user);
+        reaction.setCommentaire(commentaire);
+        reaction.setType(emoji);
+        reactionCommentaireRepository.save(reaction);
+
+        return ResponseEntity.ok("Réaction enregistrée");
+    }
+    @GetMapping("/commentaires/{id}/reactions")
+    public ResponseEntity<Map<String, Long>> getReactionsCount(@PathVariable Integer id) {
+        List<ReactionCommentaire> reactions = reactionCommentaireRepository.findByCommentaireId(id);
+
+        Map<String, Long> counts = reactions.stream()
+                .collect(Collectors.groupingBy(ReactionCommentaire::getType, Collectors.counting()));
+
+        return ResponseEntity.ok(counts); // ex: { "❤️": 2, "😂": 1 }
+    }
+
+
 }
