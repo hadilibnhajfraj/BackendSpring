@@ -35,33 +35,33 @@ public class CommentaireController {
     private final ReactionCommentaireRepository reactionCommentaireRepository;
     // Ajouter un commentaire
 
-  /*  @PostMapping("/commentaires/add/{publicationId}")
-    public ResponseEntity<Commentaire> ajouterCommentaire(@RequestBody Commentaire commentaire,
-                                                          @PathVariable int publicationId) {
-        // Vérification du rôle
-        if (!"Spectateur".equals(jwtService.getAuthenticatedUserRole())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé");
-        }
+    /*  @PostMapping("/commentaires/add/{publicationId}")
+      public ResponseEntity<Commentaire> ajouterCommentaire(@RequestBody Commentaire commentaire,
+                                                            @PathVariable int publicationId) {
+          // Vérification du rôle
+          if (!"Spectateur".equals(jwtService.getAuthenticatedUserRole())) {
+              throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé");
+          }
 
-        // Récupérer l'utilisateur connecté via son email dans le token
-        String email = jwtService.getEmailFromAuthenticatedUser();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+          // Récupérer l'utilisateur connecté via son email dans le token
+          String email = jwtService.getEmailFromAuthenticatedUser();
+          User user = userRepository.findByEmail(email)
+                  .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Récupérer la publication cible
-        Publication publication = publicationRepository.findById(publicationId)
-                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+          // Récupérer la publication cible
+          Publication publication = publicationRepository.findById(publicationId)
+                  .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
 
-        // Associer l'utilisateur et la publication au commentaire
-        commentaire.setUser(user);
-        commentaire.setPublication(publication);
-        commentaire.setDateCommentaire(LocalDate.now());
+          // Associer l'utilisateur et la publication au commentaire
+          commentaire.setUser(user);
+          commentaire.setPublication(publication);
+          commentaire.setDateCommentaire(LocalDate.now());
 
-        // Sauvegarder et retourner le commentaire
-        Commentaire savedCommentaire = commentaireRepository.save(commentaire);
-        return ResponseEntity.ok(savedCommentaire);
-    }
-*/
+          // Sauvegarder et retourner le commentaire
+          Commentaire savedCommentaire = commentaireRepository.save(commentaire);
+          return ResponseEntity.ok(savedCommentaire);
+      }
+  */
     // Récupérer tous les commentaires
     @GetMapping("/all")
     public ResponseEntity<List<Commentaire>> getAllCommentaires() {
