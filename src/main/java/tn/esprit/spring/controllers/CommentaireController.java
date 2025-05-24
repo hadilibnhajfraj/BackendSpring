@@ -246,7 +246,8 @@ public class CommentaireController {
         commentaire.setNombreReactions((int) count);
         commentaireRepository.save(commentaire);
 
-        return ResponseEntity.ok("Réaction enregistrée ou modifiée.");
+        return ResponseEntity.ok(Map.of("message", "Réaction enregistrée ou modifiée."));
+
     }
 
 
