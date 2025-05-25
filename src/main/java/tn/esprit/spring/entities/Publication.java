@@ -32,6 +32,7 @@ public class Publication {
     private String urlMedia;
     private boolean isLive; // Nouveau champ pour identifier un direct
     private int nombreReactions = 0;
+    private int nombrePartages = 0;
     @Override
     public String toString() {
         return "Publication{id=" + id + ", contenu='" + contenu + "', datePublication=" + datePublication + ", isLive=" + isLive + ", typeMedia=" + typeMedia + ", urlMedia='" + urlMedia + "'}";

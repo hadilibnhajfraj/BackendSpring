@@ -286,5 +286,29 @@ public class PublicationController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
+    @PutMapping("/publications/{id}/increment-share")
+    public ResponseEntity<?> incrementShare(@PathVariable int id) {
+        Publication pub = publicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publication non trouvée"));
+
+        pub.setNombrePartages(pub.getNombrePartages() + 1);
+        publicationRepository.save(pub);
+
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/publications/{id}/increment-partage")
+    public ResponseEntity<?> incrementPublicationPartage(@PathVariable Integer id) {
+        Optional<Publication> optionalPublication = publicationRepository.findById(id);
+
+        if (optionalPublication.isPresent()) {
+            Publication publication = optionalPublication.get();
+            publication.setNombrePartages(publication.getNombrePartages() + 1);
+            publicationRepository.save(publication);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 }
