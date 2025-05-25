@@ -27,6 +27,9 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+    @Column(name = "reset_token")
+    private String resetToken;
+
     @ManyToOne
     @JsonIgnore
     // @JoinColumn(name = "id_equipe")

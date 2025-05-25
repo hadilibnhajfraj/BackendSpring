@@ -52,6 +52,7 @@ public class UserService {
         user.setNom(userDTO.nom);
         user.setPrenom(userDTO.prenom);
         user.setEmail(userDTO.email);
+        user.setDateNaissance(userDTO.dateNaissance);
         user.setPassword(passwordEncoder.encode(userDTO.password));
         user.setRole(userDTO.role);
 
@@ -67,6 +68,9 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            System.out.println("Email reçu : " + request.getEmail());
+            System.out.println("Mot de passe reçu : " + request.getPassword());
+            System.out.println("Utilisateur trouvé : " + user);
             throw new RuntimeException("Invalid credentials");
         }
 
