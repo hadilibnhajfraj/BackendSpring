@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
@@ -266,6 +267,23 @@ public class PublicationController {
         publicationRepository.save(publication);
 
         return ResponseEntity.ok(Map.of("message", "Réaction enregistrée ou modifiée."));
+    }
+    @GetMapping("/publications/{id}/reactions")
+    public ResponseEntity<Map<String, Long>> getPublicationReactionsCount(@PathVariable Integer id) {
+        List<ReactionPublication> reactions = reactionPublicationRepository.findByPublicationId(id);
+
+        Map<String, Long> counts = reactions.stream()
+                .collect(Collectors.groupingBy(ReactionPublication::getType, Collectors.counting()));
+
+        return ResponseEntity.ok(counts);
+    }
+    @GetMapping("/publications/{publicationId}/reactions/user/{userId}")
+    public ResponseEntity<ReactionPublication> getUserReactionToPublication(
+            @PathVariable Integer publicationId,
+            @PathVariable Integer userId) {
+        return reactionPublicationRepository.findByUserIdAndPublicationId(userId, publicationId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
     }
 
 
