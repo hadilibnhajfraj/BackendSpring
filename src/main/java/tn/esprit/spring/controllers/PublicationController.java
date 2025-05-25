@@ -3,7 +3,6 @@ package tn.esprit.spring.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,12 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.spring.entities.Commentaire;
-import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.*;
 
-import tn.esprit.spring.entities.Role;
-import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.PublicationRepository;
+import tn.esprit.spring.repositories.ReactionPublicationRepository;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.implementations.CommentaireService;
 import tn.esprit.spring.services.implementations.JwtService;
@@ -40,7 +37,8 @@ public class PublicationController {
     private final CommentaireService commentaireService;
     @Autowired
     private PublicationRepository publicationRepository;
-
+    @Autowired
+    private ReactionPublicationRepository reactionPublicationRepository;
     @PostMapping("/add")
     public ResponseEntity<Publication> addPublication(
             @RequestPart("publication") String publicationJson,
@@ -233,8 +231,42 @@ public class PublicationController {
         List<Commentaire> commentaires = commentaireService.getCommentairesByPublicationId(publicationId);
         return ResponseEntity.ok(commentaires);
     }
+    @PostMapping("/publications/{id}/react")
+    @Transactional
+    public ResponseEntity<?> reactToPublication(@PathVariable Integer id, @RequestBody Map<String, String> payload) {
+        String emoji = payload.get("reaction");
+        String email = payload.get("email");
 
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Publication publication = publicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Publication non trouvée"));
 
+        if (!"Spectateur".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Seuls les spectateurs peuvent réagir à une publication.");
+        }
+
+        Optional<ReactionPublication> existingReaction = reactionPublicationRepository.findByUserAndPublication(user, publication);
+
+        if (existingReaction.isPresent()) {
+            ReactionPublication reaction = existingReaction.get();
+            if (!reaction.getType().equals(emoji)) {
+                reaction.setType(emoji);
+                reactionPublicationRepository.save(reaction);
+            }
+        } else {
+            ReactionPublication newReaction = new ReactionPublication();
+            newReaction.setUser(user);
+            newReaction.setPublication(publication);
+            newReaction.setType(emoji);
+            reactionPublicationRepository.save(newReaction);
+        }
+
+        // Mettre à jour le nombre total de réactions
+        long count = reactionPublicationRepository.countByPublication(publication);
+        publication.setNombreReactions((int) count);
+        publicationRepository.save(publication);
+
+        return ResponseEntity.ok(Map.of("message", "Réaction enregistrée ou modifiée."));
+    }
 
 
 }

@@ -31,6 +31,7 @@ public class Publication {
     private String typeMedia;
     private String urlMedia;
     private boolean isLive; // Nouveau champ pour identifier un direct
+    private int nombreReactions = 0;
     @Override
     public String toString() {
         return "Publication{id=" + id + ", contenu='" + contenu + "', datePublication=" + datePublication + ", isLive=" + isLive + ", typeMedia=" + typeMedia + ", urlMedia='" + urlMedia + "'}";
@@ -50,4 +51,7 @@ public class Publication {
     @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Commentaire> commentaires;
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ReactionPublication> reactions;
 }
