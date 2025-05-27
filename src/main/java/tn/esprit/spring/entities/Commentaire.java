@@ -21,7 +21,7 @@ public class Commentaire {
     private String texte;
     private LocalDate dateCommentaire;
 
-    private int nombreReactions = 0; // Nombre de rÃ©actions par dÃ©faut Ã  0
+    private int nombreReactions = 0; // Nombre de réactions par défaut à 0
 
     @ManyToOne
     private User user;
