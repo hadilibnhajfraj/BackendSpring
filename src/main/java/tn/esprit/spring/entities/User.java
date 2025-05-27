@@ -22,6 +22,14 @@ public class User {
     private String nom;
     private String prenom;
     private LocalDate dateNaissance;
+    @Column(unique = true)
+    private String email;
+    private String password;
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
+    }
+
     @Enumerated(EnumType.STRING)
     private Role role;
     @Column(unique = true)
@@ -42,7 +50,8 @@ public class User {
     @JsonIgnore
     private List<Publication> publications;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
     @JsonIgnore
     private List<Commentaire> commentaires;
 

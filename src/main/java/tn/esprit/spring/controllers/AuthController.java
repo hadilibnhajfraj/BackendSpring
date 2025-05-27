@@ -38,7 +38,7 @@ public class AuthController {
          return ResponseEntity.ok(user);
      }*/
     private String generateTempPassword() {
-        // Exemple simple : chaÃ®ne de 12 caractÃ¨res alphanumÃ©riques
+        // Exemple simple : chaîne de 12 caractères alphanumériques
         int length = 12;
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         Random random = new Random();
@@ -75,18 +75,18 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // GÃ©nÃ¨re le mot de passe temporaire et l'envoie par email
+        // Génère le mot de passe temporaire et l'envoie par email
         String tempPassword = emailService.sendTemporaryPassword(email);
 
-        // Encode et met Ã  jour le mot de passe dans la base
+        // Encode et met à jour le mot de passe dans la base
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(tempPassword));
         userRepository.save(user);
 
-        // Optionnel : si tu prÃ©fÃ¨res sÃ©parer la gÃ©nÃ©ration et l'envoi, tu peux utiliser sendPasswordResetEmail
+        // Optionnel : si tu préfères séparer la génération et l'envoi, tu peux utiliser sendPasswordResetEmail
         // emailService.sendPasswordResetEmail(email, tempPassword);
 
-        // Retourne le mot de passe temporaire dans la rÃ©ponse JSON
+        // Retourne le mot de passe temporaire dans la réponse JSON
         Map<String, String> response = new HashMap<>();
         response.put("tempPassword", tempPassword);
 
@@ -118,7 +118,7 @@ public class AuthController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("message", "Mot de passe mis Ã  jour avec succÃ¨s"));
+                .body(Map.of("message", "Mot de passe mis à jour avec succès"));
 
     }
 
