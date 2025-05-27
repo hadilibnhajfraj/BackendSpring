@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -66,4 +67,7 @@ public class User {
     @OneToMany(mappedBy = "proprietaire")
     @JsonIgnore
     private List<Terrain> terrains;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Joueur> joueurs;
 }

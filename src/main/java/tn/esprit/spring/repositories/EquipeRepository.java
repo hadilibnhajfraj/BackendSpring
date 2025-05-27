@@ -14,6 +14,8 @@ public interface EquipeRepository extends JpaRepository<Equipe, Integer> {
     @Query("SELECT e FROM Equipe e LEFT JOIN FETCH e.users")
     List<Equipe> findAllWithUsers();
 
+    @Query  ("SELECT e FROM Equipe e JOIN e.tournoiEquipes te WHERE te.tournoi.idTournoi = :tournoiId")
+    List<Equipe> findEquipesByTournoiId(Integer tournoiId);
 }
 
 

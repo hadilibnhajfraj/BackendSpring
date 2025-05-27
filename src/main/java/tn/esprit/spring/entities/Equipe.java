@@ -24,20 +24,32 @@ public class Equipe {
     int nb_joueur;
 
     @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL)
-    @JsonManagedReference  // <-- Garder Ã§a si tu veux, ou mÃªme le supprimer temporairement pour tester
+    @JsonManagedReference  // <-- Garder ça si tu veux, ou même le supprimer temporairement pour tester
     List<User> users;
 
 
     @ManyToMany(mappedBy = "equipes1")
+    @JsonIgnore
     List<MatchFo> matchsEquipe1;
 
-    @ManyToMany
+   // @ManyToMany
   /*  @JoinTable(
             name = "Tournoi_Equipe",
             joinColumns = @JoinColumn(name = "id_equipe"),
             inverseJoinColumns = @JoinColumn(name = "id_tournoi")
     )*/
-    private List<Tournoi> tournois;
+    //private List<Tournoi> tournois;
+
+    @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<TournoiEquipe> tournoiEquipes;
+
+
+    @OneToMany(mappedBy = "equipe", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Joueur> joueurs;
+
+    public String getLogo() { return logo; }
     // In Equipe.java
     @Override
     public String toString() {
