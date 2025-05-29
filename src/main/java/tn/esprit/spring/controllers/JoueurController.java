@@ -89,9 +89,9 @@ public class JoueurController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteJoueur(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteJoueur(@PathVariable Integer id) {
         joueurService.deleteJoueur(id);
-        return ResponseEntity.ok("Joueur supprimé avec succès");
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/assignTeam/{teamId}")
