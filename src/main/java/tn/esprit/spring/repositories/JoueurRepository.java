@@ -19,4 +19,12 @@ public interface JoueurRepository extends JpaRepository<Joueur, Integer> {
     List<Joueur> findByEquipeId(@Param("equipeId") Integer equipeId);
     @Query("SELECT j FROM Joueur j LEFT JOIN FETCH j.user WHERE j.idJoueur = :id")
     Optional<Joueur> findByIdWithUser(@Param("id") Integer id);
+
+
+    // // Custom query to find all players who are not assigned to any team
+   @Query("SELECT j FROM Joueur j WHERE j.equipe IS NULL")
+   List<Joueur> findAllNonAssignedJoueurs();
+
+
+
 }

@@ -125,4 +125,14 @@ public class JoueurService implements JoueurInterface {
         // Use custom query to avoid loading entire Equipe entity
         return joueurRepository.findByEquipeId(idEquipe);
     }
+
+    @Override
+    public List<Joueur> findAllNonAssignedJoueurs() {
+        return joueurRepository.findAllNonAssignedJoueurs();
+    }
+
+    @Override
+    public List<Joueur> getAllNonAssignedJoueurs() {
+        return joueurRepository.findAllNonAssignedJoueurs();
+    }
 }

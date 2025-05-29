@@ -29,4 +29,8 @@ public interface JoueurInterface {
 
     // Get all players by team
     List<Joueur> getAllPlayerByTeam(int idEquipe);
+    // Get all players not assigned to any team
+    List<Joueur> findAllNonAssignedJoueurs();
+
+    List<Joueur> getAllNonAssignedJoueurs();
 }

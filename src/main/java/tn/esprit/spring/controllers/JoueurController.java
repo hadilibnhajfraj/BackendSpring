@@ -30,10 +30,15 @@ public class JoueurController {
 
         return ResponseEntity.ok(joueurService.addJoueur(joueur));
     }
-
+    //GET  ALL PLAYERS (tous les joueurs)
     @GetMapping("/all")
     public ResponseEntity<List<Joueur>> getAllJoueurs() {
         return ResponseEntity.ok(joueurService.getAllJoueurs());
+    }
+    //GET  ALL  non assigned PLAYERS (non affectues)
+    @GetMapping("/all-non-assigned")
+    public ResponseEntity<List<Joueur>> getAllNonAssignedJoueurs() {
+        return ResponseEntity.ok(joueurService.findAllNonAssignedJoueurs());
     }
 
     @GetMapping("/{id}")

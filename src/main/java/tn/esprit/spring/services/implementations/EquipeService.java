@@ -1,6 +1,7 @@
 package tn.esprit.spring.services.implementations;
 
 
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class EquipeService implements EquipeInterface {
     private final EquipeRepository equipeRepository;
     private  final JoueurRepository joueurRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Override
     public Equipe ajouterEquipe(Equipe equipe) {
@@ -58,11 +60,11 @@ public class EquipeService implements EquipeInterface {
     }
     /// todo: send message or email to infrom the player that he is added to the team
     @Override
-    public Equipe ajouterJoueur(Integer idEquipe, Integer idJoueur) {
+    public Equipe ajouterJoueur(Integer idEquipe, Integer idJoueur) throws MessagingException {
         Equipe equipe = equipeRepository.findById(idEquipe)
                 .orElseThrow(() -> new EntityNotFoundException("Equipe not found"));
 
-        Joueur joueur = joueurRepository.findById(idJoueur)
+        Joueur joueur =     joueurRepository.findById(idJoueur)
                 .orElseThrow(() -> new EntityNotFoundException("Joueur not found"));
 
         // Update both sides of the relationship
@@ -71,6 +73,14 @@ public class EquipeService implements EquipeInterface {
         // Update associated user if exists
         if (joueur.getUser() != null) {
             joueur.getUser().setEquipe(equipe);
+            emailService.sendEmail(
+                    joueur.getMail(),
+                    "You have been added to a team",
+                    "Hello " + joueur.getUser().getPrenom() + ",\n\n" +
+                            "You have been successfully added to the team: " + equipe.getNom() + ".\n\n" +
+                            "Best regards,\n" +
+                            "The Team Management"
+            );
             userRepository.save(joueur.getUser());
         }
 

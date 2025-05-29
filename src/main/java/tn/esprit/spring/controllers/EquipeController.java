@@ -1,5 +1,6 @@
 package tn.esprit.spring.controllers;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -75,7 +76,9 @@ public class EquipeController {
             return ResponseEntity.ok("{\"message\": \"Joueur ajouté avec succès à l'équipe\"}");
         } catch (RuntimeException e) {
            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                   .body("Player not found or already in the team");
+                   .body("Player not found or already in the team" + e.getMessage());
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
         }
     }
     // Retirer un joueur d'une équipe
