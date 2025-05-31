@@ -89,7 +89,7 @@ public class JoueurService implements JoueurInterface {
                 .orElseThrow(() -> new RuntimeException("Joueur not found"));
 
         if (joueur.getUser() != null) {
-            joueur.getUser().setJoueur(null);
+            joueur.getUser().setJoueurs(null);
         }
 
         joueurRepository.delete(joueur);

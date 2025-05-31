@@ -33,9 +33,6 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(unique = true)
-    private String email;
-    private String password;
     @Column(name = "reset_token")
     private String resetToken;
 
@@ -43,16 +40,12 @@ public class User {
     @JsonIgnore
     // @JoinColumn(name = "id_equipe")
     private Equipe equipe;
-    @Override
-    public String toString() {
-        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
-    }
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Publication> publications;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    @JsonIgnore
     @JsonIgnore
     private List<Commentaire> commentaires;
 
@@ -68,6 +61,6 @@ public class User {
     @JsonIgnore
     private List<Terrain> terrains;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Joueur> joueurs;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Joueur joueurs;
 }
