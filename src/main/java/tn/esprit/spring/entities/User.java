@@ -26,8 +26,16 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
+    }
+
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(unique = true)
+    private String email;
+    private String password;
     @Column(name = "reset_token")
     private String resetToken;
 
@@ -45,6 +53,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore
+    @JsonIgnore
     private List<Commentaire> commentaires;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -59,7 +68,6 @@ public class User {
     @JsonIgnore
     private List<Terrain> terrains;
 
-    @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Joueur joueurs;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Joueur> joueurs;
 }
