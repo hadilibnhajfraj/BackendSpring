@@ -1,6 +1,5 @@
 package tn.esprit.spring.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,9 +12,9 @@ import tn.esprit.spring.entities.LoginRequest;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.entities.UserDTO;
 import tn.esprit.spring.repositories.UserRepository;
-import tn.esprit.spring.services.UserService;
 import tn.esprit.spring.services.implementations.EmailService;
 import tn.esprit.spring.services.implementations.PasswordResetService;
+import tn.esprit.spring.services.implementations.UserService;
 
 import java.util.*;
 
@@ -38,7 +37,7 @@ public class AuthController {
          return ResponseEntity.ok(user);
      }*/
     private String generateTempPassword() {
-        // Exemple simple : chaîne de 12 caractères alphanumériques
+        // Exemple simple : chaï¿½ne de 12 caractï¿½res alphanumï¿½riques
         int length = 12;
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         Random random = new Random();
@@ -75,18 +74,18 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Génère le mot de passe temporaire et l'envoie par email
+        // Gï¿½nï¿½re le mot de passe temporaire et l'envoie par email
         String tempPassword = emailService.sendTemporaryPassword(email);
 
-        // Encode et met à jour le mot de passe dans la base
+        // Encode et met ï¿½ jour le mot de passe dans la base
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(tempPassword));
         userRepository.save(user);
 
-        // Optionnel : si tu préfères séparer la génération et l'envoi, tu peux utiliser sendPasswordResetEmail
+        // Optionnel : si tu prï¿½fï¿½res sï¿½parer la gï¿½nï¿½ration et l'envoi, tu peux utiliser sendPasswordResetEmail
         // emailService.sendPasswordResetEmail(email, tempPassword);
 
-        // Retourne le mot de passe temporaire dans la réponse JSON
+        // Retourne le mot de passe temporaire dans la rï¿½ponse JSON
         Map<String, String> response = new HashMap<>();
         response.put("tempPassword", tempPassword);
 
@@ -118,7 +117,7 @@ public class AuthController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("message", "Mot de passe mis à jour avec succès"));
+                .body(Map.of("message", "Mot de passe mis ï¿½ jour avec succï¿½s"));
 
     }
 

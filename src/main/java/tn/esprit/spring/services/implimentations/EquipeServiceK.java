@@ -7,7 +7,7 @@ import tn.esprit.spring.repositories.EquipeRepository;
 import tn.esprit.spring.services.interfaces.IEquipeService;
 
 @Service
-public class EquipeService implements IEquipeService {
+public class EquipeServiceK implements IEquipeService {
 
     @Autowired
     EquipeRepository equipeRepository;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.User;
-import tn.esprit.spring.services.UserService;
+import tn.esprit.spring.services.implementations.UserService;
 
 import java.util.List;
 import java.util.Optional;
