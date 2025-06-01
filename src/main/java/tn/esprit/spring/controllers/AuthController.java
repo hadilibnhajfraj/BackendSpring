@@ -33,6 +33,10 @@ public class AuthController {
         AuthResponse response = userService.login(request);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{id}")
+    public UserDTO getById(@PathVariable int id) {
+        return userService.getUserById(id);
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package tn.esprit.spring.services.implementations;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
    /* public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setNom(userDTO.nom);
@@ -55,5 +55,27 @@ public class UserService {
     public User findById(int id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
+
+
+    public UserDTO getUserById(int id) {
+
+        User u = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        String display = (u.getPrenom() + " " + u.getNom()).trim();
+        if (display.isEmpty()) {
+            display = u.getEmail();            // ou u.getUsername()
+        }
+
+        UserDTO dto = new UserDTO();
+        dto.setId(u.getId());
+        dto.setNom(u.getNom());
+        dto.setPrenom(u.getPrenom());
+        dto.setEmail(u.getEmail());
+        dto.setRole(u.getRole());
+        dto.setDisplayName(display);
+
+        return dto;
     }
 }
