@@ -94,7 +94,8 @@ public class JoueurService implements JoueurInterface {
 
         joueurRepository.delete(joueur);
     }
-
+    //***************affectation joueur to equipe
+//affecter joueur to equipe
     @Override
     public Joueur assignJoueurToEquipe(int joueurId, int equipeId) {
         Joueur joueur = joueurRepository.findById(joueurId)
@@ -105,7 +106,7 @@ public class JoueurService implements JoueurInterface {
         joueur.setEquipe(equipe);
         return joueurRepository.save(joueur);
     }
-
+// supprimer joueur from equipe
     @Override
     public Joueur removeJoueurFromEquipe(int joueurId) {
         Joueur joueur = joueurRepository.findById(joueurId)
@@ -114,7 +115,7 @@ public class JoueurService implements JoueurInterface {
         joueur.setEquipe(null);
         return joueurRepository.save(joueur);
     }
-
+// get all equipe by equipe
     @Override
     public List<Joueur> getAllPlayerByTeam(int idEquipe) {
         // Verify team exists first
@@ -125,11 +126,12 @@ public class JoueurService implements JoueurInterface {
         // Use custom query to avoid loading entire Equipe entity
         return joueurRepository.findByEquipeId(idEquipe);
     }
-
+//  find les joueurs non Assigned
     @Override
     public List<Joueur> findAllNonAssignedJoueurs() {
         return joueurRepository.findAllNonAssignedJoueurs();
     }
+    //  get  les joueurs non Assigned
 
     @Override
     public List<Joueur> getAllNonAssignedJoueurs() {

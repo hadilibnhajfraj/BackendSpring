@@ -13,7 +13,6 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender emailSender;
-
     public void sendEmail(String to, String subject, String text) throws MessagingException {
         try {
             MimeMessage message = emailSender.createMimeMessage();

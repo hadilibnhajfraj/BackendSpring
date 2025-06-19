@@ -45,20 +45,25 @@ public class EquipeService implements EquipeInterface {
     @Override
     public Equipe updateEquipe(Integer id, Equipe equipe) {
         if (equipeRepository.existsById(id)) {
-            equipe.setIdEquipe(id);  // Maintenir l'ID existant lors de la mise à jour
-            return equipeRepository.save(equipe);  // Sauvegarder l'équipe mise à jour
+            // Maintenir l'ID existant lors de la mise à jour
+            equipe.setIdEquipe(id);
+            // Sauvegarder l'équipe mise à jour
+            return equipeRepository.save(equipe);
         }
-        return null;  // Retourner null si l'équipe n'existe pas
+        // Retourner null si l'équipe n'existe pas
+        return null;
     }
 
     @Override
     public void deleteEquipe(Integer id) {
 
         if (equipeRepository.existsById(id)) {
-            equipeRepository.deleteById(id);  // Supprimer l'équipe si elle existe
+            // Supprimer l'équipe si elle existe
+            equipeRepository.deleteById(id);
         }
     }
-    /// todo: send message or email to infrom the player that he is added to the team
+    //***************Email
+    /// envoyer un message ou un email pour informer le joueur qu'il a été ajouté à l'équipe
     @Override
     public Equipe ajouterJoueur(Integer idEquipe, Integer idJoueur) throws MessagingException {
         Equipe equipe = equipeRepository.findById(idEquipe)
@@ -67,24 +72,24 @@ public class EquipeService implements EquipeInterface {
         Joueur joueur =     joueurRepository.findById(idJoueur)
                 .orElseThrow(() -> new EntityNotFoundException("Joueur not found"));
 
-        // Update both sides of the relationship
+        // Mettre à jour les deux côtés de la relation
         joueur.setEquipe(equipe);
 
-        // Update associated user if exists
+        // Mettre à jour l'utilisateur associé s'il existe
         if (joueur.getUser() != null) {
             joueur.getUser().setEquipe(equipe);
             emailService.sendEmail(
                     joueur.getMail(),
-                    "You have been added to a team",
-                    "Hello " + joueur.getUser().getPrenom() + ",\n\n" +
-                            "You have been successfully added to the team: " + equipe.getNom() + ".\n\n" +
-                            "Best regards,\n" +
-                            "The Team Management"
+                    "vous avez été ajouté à une équipe",
+                    "Salut " + joueur.getUser().getPrenom() + ",\n\n" +
+                            "Vous avez été ajouté avec succès à l'équipe : " + equipe.getNom() + ".\n\n" +
+                            "Cordialement,\n" +
+                            "Meriem Ben Salem"
             );
             userRepository.save(joueur.getUser());
         }
 
-        // Increment player count
+        // Incrémenter le nombre de joueurs
         equipe.setNb_joueur(equipe.getNb_joueur() + 1);
 
         // Save changes
@@ -103,15 +108,17 @@ public class EquipeService implements EquipeInterface {
          if (joueurOptional.isPresent()) {
              User joueur = joueurOptional.get().getUser();
 
-             // Remove the player from the team
+             // Retirer le joueur de l'équipe
              if (equipe.getUsers().remove(joueur)) { // Remove the player from the team's list
-                 joueur.setEquipe(null); // Disassociate the team from the player
+                 // Désassocier l'équipe du joueur
+                 joueur.setEquipe(null);
 
                  // Save the changes
 joueurRepository.save(joueurOptional.get()); // Save the player
-                 equipeRepository.save(equipe); // Save the team                 equipeRepository.save(equipe); // Save the team
-
-                 return equipe; // Return the updated team
+                 // Save the team
+                 equipeRepository.save(equipe);
+             // Retourner l'équipe mise à jour
+                 return equipe;
              }
          }
      }
