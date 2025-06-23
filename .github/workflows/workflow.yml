@@ -43,8 +43,8 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=PIDEVSpringProject_BackendSpring
-            -Dsonar.organization=pidevspringproject
+            -Dsonar.projectKey=PIDEVSpringProjects_BackendSpring
+            -Dsonar.organization=pidevspringprojects
             -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
