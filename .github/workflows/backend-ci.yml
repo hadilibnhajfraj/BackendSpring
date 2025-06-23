@@ -2,8 +2,15 @@ name: Analyse Backend avec SonarCloud
 
 on:
   push:
-    branches: [hadil]  # Tu peux aussi mettre '**' pour toutes les branches
+    branches:
+      - hadil
+      - amina
+      - raouf
   pull_request:
+    branches:
+      - hadil
+      - amina
+      - raouf
   workflow_dispatch:
 
 jobs:
