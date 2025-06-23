@@ -2,7 +2,7 @@ name: Analyse Backend avec SonarCloud
 
 on:
   push:
-    branches: [hadil]
+    branches: [hadil]  # Tu peux aussi mettre '**' pour toutes les branches
   pull_request:
   workflow_dispatch:
 
@@ -35,5 +35,9 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=PIDEVSpringProject_BackendSpring
+            -Dsonar.organization=pidevspringproject
+            -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
