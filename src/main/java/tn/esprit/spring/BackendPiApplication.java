@@ -12,7 +12,5 @@ public class BackendPiApplication {
         SpringApplication.run(BackendPiApplication.class, args);
     }
 
-    void contextLoads() {
-        // Ce test vérifie simplement que le contexte Spring démarre
-    }
+
 }
