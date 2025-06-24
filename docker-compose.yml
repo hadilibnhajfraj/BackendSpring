@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: pidevbi
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springpassword
+    ports:
+      - "3307:3306"  # <-- change ici : 3307 sur ta machine hôte vers 3306 dans le conteneur
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backendpi:
+    build: .
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pidevbi?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: springuser
+      SPRING_DATASOURCE_PASSWORD: springpassword
+    command: [ "./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar" ]
+
+
+volumes:
+  mysql_data:
