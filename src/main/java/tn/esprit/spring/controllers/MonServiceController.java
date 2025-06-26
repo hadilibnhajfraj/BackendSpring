@@ -62,7 +62,7 @@ public class MonServiceController {
         List<EvenementSimplifieDTO> evenements = monService.getEvenementsByTournoi(tournoiId);
         return ResponseEntity.ok(evenements);
     }
-    @GetMapping("/evenement/{evenementId}")
+    @GetMapping("/eve/{evenementId}")
     public ResponseEntity<List<Map<String, Object>>> getZonesByMatch(@PathVariable int evenementId) {
         List<Map<String, Object>> zones = monService.getZonesByEvenement(evenementId);
         return ResponseEntity.ok(zones);

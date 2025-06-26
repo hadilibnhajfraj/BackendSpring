@@ -326,7 +326,9 @@ public class MonService implements IMonService {
         List<Map<String, Object>> zonesInfos = new ArrayList<>();
 
         for (Zone zone : evenement.getZones()) {
+
             Map<String, Object> zoneInfo = new HashMap<>();
+            zoneInfo.put("id", zone.getId());
             zoneInfo.put("nomZone", zone.getNom().name());
             zoneInfo.put("capaciteMax", zone.getCapaciteMax());
             zoneInfo.put("nbPlacesReservees", zone.getNbPlacesReservees());
