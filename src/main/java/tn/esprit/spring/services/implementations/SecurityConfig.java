@@ -38,23 +38,22 @@ public class SecurityConfig {
         http.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // autoriser pré-vol
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/").permitAll() // 👈 ajouter cette ligne
                 .requestMatchers("/publications/add").hasAuthority("Presse")
                 .requestMatchers("/publications/mine").permitAll()
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
                 .requestMatchers("/publications/publications/**").hasAuthority("Spectateur")
-                .requestMatchers("/commentaires/**").hasAuthority("Spectateur")
-                .requestMatchers("/start-live/**").hasAuthority("Presse")
                 .requestMatchers("/commentaires/**").permitAll()
-                .requestMatchers("/commentaires/add").permitAll()
+                .requestMatchers("/start-live/**").hasAuthority("Presse")
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated();
-        // Require authentication for all other requests
         return http.build();
     }
+
 
 
 }
