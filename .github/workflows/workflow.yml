@@ -8,13 +8,11 @@ on:
 
 jobs:
   build:
-    name: Build, Analyze, and Deploy
     runs-on: ubuntu-latest
-
     env:
-      NEXUS_URL: https://6e31-41-226-25-4.ngrok-free.app
       NEXUS_USERNAME: admin
       NEXUS_PASSWORD: admin
+      NEXUS_URL: https://6e31-41-226-25-4.ngrok-free.app
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
@@ -46,6 +44,9 @@ jobs:
               </server>
             </servers>
           </settings>" > ~/.m2/settings.xml
+        env:
+          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
 
       - name: Build project (skip tests)
         run: mvn clean install -DskipTests
@@ -57,10 +58,14 @@ jobs:
             -Dsonar.organization=pidevspringprojects \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
       - name: Deploy .jar to Nexus (Maven)
-        run: |
-          mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}/repository/maven-releases/
+        run: mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}/repository/maven-releases/
+        env:
+          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
 
       - name: Build Docker Image
         run: docker build -t mon-app:latest .
@@ -70,6 +75,12 @@ jobs:
 
       - name: Docker Login to Nexus
         run: echo "$NEXUS_PASSWORD" | docker login ${NEXUS_URL} -u $NEXUS_USERNAME --password-stdin
+        env:
+          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
 
       - name: Push Docker Image to Nexus
         run: docker push ${NEXUS_URL}/repository/docker-repo/mon-app:latest
+        env:
+          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
