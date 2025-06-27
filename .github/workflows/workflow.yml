@@ -12,9 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NGROK_NEXUS_URL: 6e31-41-226-25-4.ngrok-free.app
-      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+      NGROK_NEXUS_HOST: 6e31-41-226-25-4.ngrok-free.app
+      MAVEN_PORT: 8081
+      DOCKER_PORT: 8083
+      NEXUS_USERNAME: admin
+      NEXUS_PASSWORD: admin
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
@@ -41,54 +43,35 @@ jobs:
             <servers>
               <server>
                 <id>nexus</id>
-                <username>$NEXUS_USERNAME</username>
-                <password>$NEXUS_PASSWORD</password>
+                <username>${NEXUS_USERNAME}</username>
+                <password>${NEXUS_PASSWORD}</password>
               </server>
             </servers>
           </settings>" > ~/.m2/settings.xml
-        env:
-          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
 
-      - name: Build project
+      - name: Build project (skip tests)
         run: mvn clean install -DskipTests
 
-      - name: Run SonarCloud analysis
+      - name: SonarCloud Analysis
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar \
             -Dsonar.projectKey=PIDEVSpring_BackendSpring \
             -Dsonar.organization=pidevspringprojects \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN
-        env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
-      - name: Deploy .jar to Nexus
+      - name: Deploy .jar to Nexus (Maven)
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_URL}/repository/maven-releases/
-          else
-            mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_URL}/repository/maven-snapshots/
-          fi
-        env:
-          NGROK_NEXUS_URL: ${{ env.NGROK_NEXUS_URL }}
+          mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_HOST}:${MAVEN_PORT}/repository/maven-releases/
 
       - name: Build Docker Image
         run: docker build -t mon-app:latest .
 
       - name: Tag Docker Image
-        run: docker tag mon-app:latest $NGROK_NEXUS_URL/repository/mon-repo/mon-app:latest
-        env:
-          NGROK_NEXUS_URL: ${{ env.NGROK_NEXUS_URL }}
+        run: docker tag mon-app:latest ${NGROK_NEXUS_HOST}:${DOCKER_PORT}/docker-repo/mon-app:latest
 
       - name: Docker Login to Nexus
-        run: echo "$NEXUS_PASSWORD" | docker login $NGROK_NEXUS_URL -u $NEXUS_USERNAME --password-stdin
-        env:
-          NGROK_NEXUS_URL: ${{ env.NGROK_NEXUS_URL }}
-          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
+        run: echo "$NEXUS_PASSWORD" | docker login ${NGROK_NEXUS_HOST}:${DOCKER_PORT} -u $NEXUS_USERNAME --password-stdin
 
       - name: Push Docker Image to Nexus
-        run: docker push $NGROK_NEXUS_URL/repository/mon-repo/mon-app:latest
-        env:
-          NGROK_NEXUS_URL: ${{ env.NGROK_NEXUS_URL }}
+        run: docker push ${NGROK_NEXUS_HOST}:${DOCKER_PORT}/docker-repo/mon-app:latest
