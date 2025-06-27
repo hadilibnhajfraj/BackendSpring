@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: backendpi-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ""             # même password vide que local
+      MYSQL_DATABASE: pidevbi
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: backendpi-app
+    depends_on:
+      - db
+    environment:
+      # On pointe la base sur le service db
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pidevbi?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JACKSON_TIME_ZONE: Africa/Tunis
+      SERVER_PORT: 8082
+      # Si vous avez d’autres variables JWT ou mail, vous pouvez aussi les ajouter ici
+    ports:
+      - "8082:8082"
+    # Si vous préférez monter votre application.properties directement, décommentez :
+    # volumes:
+    #   - ./src/main/resources/application.properties:/app/application.properties:ro
+
+volumes:
+  db_data:
