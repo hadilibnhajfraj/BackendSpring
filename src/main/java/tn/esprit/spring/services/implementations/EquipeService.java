@@ -1,6 +1,5 @@
 package tn.esprit.spring.services.implementations;
 
-
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +17,16 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-
 public class EquipeService implements EquipeInterface {
 
-
     private final EquipeRepository equipeRepository;
-    private  final JoueurRepository joueurRepository;
+    private final JoueurRepository joueurRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
 
     @Override
     public Equipe ajouterEquipe(Equipe equipe) {
-        return  equipeRepository.save(equipe);
+        return equipeRepository.save(equipe);
     }
 
     @Override
@@ -45,42 +42,35 @@ public class EquipeService implements EquipeInterface {
     @Override
     public Equipe updateEquipe(Integer id, Equipe equipe) {
         if (equipeRepository.existsById(id)) {
-            // Maintenir l'ID existant lors de la mise à jour
             equipe.setIdEquipe(id);
-            // Sauvegarder l'équipe mise à jour
             return equipeRepository.save(equipe);
         }
-        // Retourner null si l'équipe n'existe pas
-        return null;
+        throw new EntityNotFoundException("Equipe non trouvée avec l'ID : " + id);
     }
 
     @Override
     public void deleteEquipe(Integer id) {
-
-        if (equipeRepository.existsById(id)) {
-            // Supprimer l'équipe si elle existe
-            equipeRepository.deleteById(id);
+        if (!equipeRepository.existsById(id)) {
+            throw new EntityNotFoundException("Equipe non trouvée avec l'ID : " + id);
         }
+        equipeRepository.deleteById(id);
     }
-    //***************Email
-    /// envoyer un message ou un email pour informer le joueur qu'il a été ajouté à l'équipe
+
     @Override
     public Equipe ajouterJoueur(Integer idEquipe, Integer idJoueur) throws MessagingException {
         Equipe equipe = equipeRepository.findById(idEquipe)
-                .orElseThrow(() -> new EntityNotFoundException("Equipe not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Equipe non trouvée avec l'ID : " + idEquipe));
 
-        Joueur joueur =     joueurRepository.findById(idJoueur)
-                .orElseThrow(() -> new EntityNotFoundException("Joueur not found"));
+        Joueur joueur = joueurRepository.findById(idJoueur)
+                .orElseThrow(() -> new EntityNotFoundException("Joueur non trouvé avec l'ID : " + idJoueur));
 
-        // Mettre à jour les deux côtés de la relation
         joueur.setEquipe(equipe);
 
-        // Mettre à jour l'utilisateur associé s'il existe
         if (joueur.getUser() != null) {
             joueur.getUser().setEquipe(equipe);
             emailService.sendEmail(
                     joueur.getMail(),
-                    "vous avez été ajouté à une équipe",
+                    "Vous avez été ajouté à une équipe",
                     "Salut " + joueur.getUser().getPrenom() + ",\n\n" +
                             "Vous avez été ajouté avec succès à l'équipe : " + equipe.getNom() + ".\n\n" +
                             "Cordialement,\n" +
@@ -89,40 +79,34 @@ public class EquipeService implements EquipeInterface {
             userRepository.save(joueur.getUser());
         }
 
-        // Incrémenter le nombre de joueurs
         equipe.setNb_joueur(equipe.getNb_joueur() + 1);
 
-        // Save changes
         joueurRepository.save(joueur);
         return equipeRepository.save(equipe);
     }
 
-
     @Override
- public Equipe retirerJoueur(Integer id, Integer playerId) {
-     Optional<Equipe> equipeOptional = equipeRepository.findById(id); // Retrieve the team
-     if (equipeOptional.isPresent()) {
-         Equipe equipe = equipeOptional.get();
+    public Equipe retirerJoueur(Integer idEquipe, Integer idJoueur) {
+        Equipe equipe = equipeRepository.findById(idEquipe)
+                .orElseThrow(() -> new EntityNotFoundException("Equipe non trouvée avec l'ID : " + idEquipe));
 
-         Optional<Joueur> joueurOptional = joueurRepository.findById(playerId); // Retrieve the player
-         if (joueurOptional.isPresent()) {
-             User joueur = joueurOptional.get().getUser();
+        Joueur joueur = joueurRepository.findById(idJoueur)
+                .orElseThrow(() -> new EntityNotFoundException("Joueur non trouvé avec l'ID : " + idJoueur));
 
-             // Retirer le joueur de l'équipe
-             if (equipe.getUsers().remove(joueur)) { // Remove the player from the team's list
-                 // Désassocier l'équipe du joueur
-                 joueur.setEquipe(null);
+        if (!equipe.equals(joueur.getEquipe())) {
+            throw new IllegalStateException("Le joueur n'appartient pas à cette équipe.");
+        }
 
-                 // Save the changes
-joueurRepository.save(joueurOptional.get()); // Save the player
-                 // Save the team
-                 equipeRepository.save(equipe);
-             // Retourner l'équipe mise à jour
-                 return equipe;
-             }
-         }
-     }
+        // Désassociation
+        joueur.setEquipe(null);
+        if (joueur.getUser() != null) {
+            joueur.getUser().setEquipe(null);
+            userRepository.save(joueur.getUser());
+        }
 
-     return null; // Return null if the team or player does not exist
- }
+        equipe.setNb_joueur(equipe.getNb_joueur() - 1);
+
+        joueurRepository.save(joueur);
+        return equipeRepository.save(equipe);
+    }
 }
