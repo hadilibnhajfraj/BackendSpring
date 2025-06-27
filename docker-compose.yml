@@ -1,38 +1,32 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: backendpi-db
+    container_name: mysql_container
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ""             # même password vide que local
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: pidevbi
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springpassword
     ports:
-      - "3306:3306"
+      - "3307:3306"  # <-- change ici : 3307 sur ta machine hôte vers 3306 dans le conteneur
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
-  backend:
+  backendpi:
     build: .
-    container_name: backendpi-app
-    depends_on:
-      - db
-    environment:
-      # On pointe la base sur le service db
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pidevbi?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD:
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JACKSON_TIME_ZONE: Africa/Tunis
-      SERVER_PORT: 8082
-      # Si vous avez d’autres variables JWT ou mail, vous pouvez aussi les ajouter ici
     ports:
       - "8082:8082"
-    # Si vous préférez monter votre application.properties directement, décommentez :
-    # volumes:
-    #   - ./src/main/resources/application.properties:/app/application.properties:ro
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pidevbi?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: springuser
+      SPRING_DATASOURCE_PASSWORD: springpassword
+    command: [ "./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar" ]
+
 
 volumes:
-  db_data:
+  mysql_data:

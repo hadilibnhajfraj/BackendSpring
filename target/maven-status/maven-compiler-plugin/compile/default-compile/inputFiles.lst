@@ -36,7 +36,7 @@ C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn
 C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\repositories\TerrainRepository.java
 C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\repositories\TournoiRepository.java
 C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\repositories\ZoneRepository.java
-C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\implimentations\EmailService.java
-C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\implimentations\MonService.java
-C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\implimentations\TokenService.java
+C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\EmailService.java
 C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\interfaces\IMonService.java
+C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\MonService.java
+C:\Users\LENOVO\Documents\BackendSpring-main\BackendSpring-main\src\main\java\tn\esprit\spring\services\TokenService.java
