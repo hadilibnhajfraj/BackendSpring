@@ -12,9 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NGROK_NEXUS_HOST: 6e31-41-226-25-4.ngrok-free.app
-      MAVEN_PORT: 8081
-      DOCKER_PORT: 8083
+      NEXUS_HOST: 6e31-41-226-25-4.ngrok-free.app
+      NEXUS_PORT: 8083
       NEXUS_USERNAME: admin
       NEXUS_PASSWORD: admin
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -60,18 +59,21 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN
 
-      - name: Deploy .jar to Nexus (Maven)
+      - name: Deploy .jar to Nexus (Maven on port 8083)
         run: |
-          mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_HOST}:${MAVEN_PORT}/repository/maven-releases/
+          mvn deploy -DaltDeploymentRepository=nexus::default::https://${NEXUS_HOST}:${NEXUS_PORT}/repository/maven-releases/
 
       - name: Build Docker Image
         run: docker build -t mon-app:latest .
 
       - name: Tag Docker Image
-        run: docker tag mon-app:latest ${NGROK_NEXUS_HOST}:${DOCKER_PORT}/docker-repo/mon-app:latest
+        run: |
+          docker tag mon-app:latest ${NEXUS_HOST}:${NEXUS_PORT}/repository/docker-repo/mon-app:latest
 
       - name: Docker Login to Nexus
-        run: echo "$NEXUS_PASSWORD" | docker login ${NGROK_NEXUS_HOST}:${DOCKER_PORT} -u $NEXUS_USERNAME --password-stdin
+        run: |
+          echo "$NEXUS_PASSWORD" | docker login ${NEXUS_HOST}:${NEXUS_PORT} -u $NEXUS_USERNAME --password-stdin
 
       - name: Push Docker Image to Nexus
-        run: docker push ${NGROK_NEXUS_HOST}:${DOCKER_PORT}/docker-repo/mon-app:latest
+        run: |
+          docker push ${NEXUS_HOST}:${NEXUS_PORT}/repository/docker-repo/mon-app:latest
