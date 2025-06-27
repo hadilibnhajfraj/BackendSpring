@@ -127,5 +127,17 @@
         </plugins>
         <finalName>monapp</finalName>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>nexus</id> <!-- Cet id sera utilisé dans settings.xml et dans mvn deploy -->
+            <name>Nexus Releases</name>
+            <url>https://6e31-41-226-25-4.ngrok-free.app/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Nexus Snapshots</name>
+            <url>https://6e31-41-226-25-4.ngrok-free.app/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
