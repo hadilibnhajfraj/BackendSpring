@@ -62,17 +62,17 @@ public class SecurityConfig {
                 .requestMatchers("/users/**").permitAll()
                 .requestMatchers("/api/auth/reset-password", "/api/auth/forgot-password").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll() // 🔐 Pour Google/Facebook
+               // .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll() // 🔐 Pour Google/Facebook
                 .requestMatchers("/publications/add").hasAuthority("Presse")
                 .requestMatchers("/publications/mine").hasAuthority("Presse")
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
-                .anyRequest().authenticated()
-                .and()
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customOAuth2SuccessHandler)
-                );
+                .anyRequest().authenticated();
+               // .and()
+                //.oauth2Login(oauth2 -> oauth2
+                        //.successHandler(customOAuth2SuccessHandler)
+              //  );
 
-
+        System.out.println("=== SecurityConfig loaded ===");
 
         return http.build();
     }
