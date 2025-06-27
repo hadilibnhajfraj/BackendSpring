@@ -126,6 +126,7 @@
         </plugins>
     </build>
 
+
     <distributionManagement>
         <repository>
             <id>nexus</id>
@@ -138,6 +139,7 @@
             <url>https://6e31-41-226-25-4.ngrok-free.app/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
 
     <profiles>
         <profile>

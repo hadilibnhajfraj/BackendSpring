@@ -64,7 +64,12 @@ jobs:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
       - name: Deploy .jar to Nexus
-        run: mvn deploy -DaltDeploymentRepository=nexus::default::https://$NGROK_NEXUS_URL/repository/maven-releases/
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_URL}/repository/maven-releases/
+          else
+            mvn deploy -DaltDeploymentRepository=nexus::default::https://${NGROK_NEXUS_URL}/repository/maven-snapshots/
+          fi
         env:
           NGROK_NEXUS_URL: ${{ env.NGROK_NEXUS_URL }}
 
