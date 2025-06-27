@@ -44,6 +44,9 @@ jobs:
       - name: Build project
         run: mvn clean install -DskipTests
 
+      - name: Build project with tests
+        run: mvn clean install -Ptest
+
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
