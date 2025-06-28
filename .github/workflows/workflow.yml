@@ -2,7 +2,7 @@ name: CI/CD with SonarCloud and Nexus
 
 on:
   push:
-    branches: [main, hadil, amina, raouf,MeriemBenSalem_bk]
+    branches: [main, hadil, amina, raouf ,MeriemBenSalem_bk]
   pull_request:
     branches: [main, hadil, amina, raouf , MeriemBenSalem_bk]
 
