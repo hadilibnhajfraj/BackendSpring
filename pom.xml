@@ -14,9 +14,9 @@
     </parent>
 
     <groupId>tn.esprit</groupId>
-    <artifactId>BackendPI</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>BackendPI</name>
+    <artifactId>backend-pi</artifactId>
+    <version>0.0.1</version> <!-- Pour release, mettre 0.0.1 sans -SNAPSHOT -->
+    <name>backend-pi</name>
     <description>BackendPI</description>
 
     <properties>
@@ -123,23 +123,21 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+
         </plugins>
     </build>
-
 
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <name>Nexus Releases</name>
             <url>https://6e31-41-226-25-4.ngrok-free.app/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
-            <name>Nexus Snapshots</name>
             <url>https://6e31-41-226-25-4.ngrok-free.app/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-
 
     <profiles>
         <profile>
