@@ -7,13 +7,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="BackendPI" />
+        <module name="backend-pi" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="BackendPI" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="BackendPI" options="-parameters" />
+      <module name="backend-pi" options="-parameters" />
     </option>
   </component>
 </project>
