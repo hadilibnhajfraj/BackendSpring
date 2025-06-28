@@ -1,4 +1,4 @@
-package tn.esprit.spring.controllers;
+package tn.esprit.spring;
 
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
