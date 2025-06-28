@@ -2,18 +2,18 @@ name: CI/CD with SonarCloud and Nexus
 
 on:
   push:
-    branches: [main, hadil, amina, raouf ,MeriemBenSalem_bk]
+    branches: [main, hadil, amina, raouf, MeriemBenSalem_bk]
   pull_request:
-    branches: [main, hadil, amina, raouf , MeriemBenSalem_bk]
+    branches: [main, hadil, amina, raouf, MeriemBenSalem_bk]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXUS_USERNAME: admin
-      NEXUS_PASSWORD: admin
-      NEXUS_URL: 6c57-2c0f-4280-60-4b-c18a-af49-767c-a23c.ngrok-free.app   # <-- ici sans https://
+      NEXUS_URL: 6c57-2c0f-4280-60-4b-c18a-af49-767c-a23c.ngrok-free.app
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -44,9 +44,6 @@ jobs:
               </server>
             </servers>
           </settings>" > ~/.m2/settings.xml
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
       - name: Build project (skip tests)
         run: mvn clean install -DskipTests
@@ -58,29 +55,6 @@ jobs:
             -Dsonar.organization=pidevspringprojects \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN
-        env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
-      - name: Deploy .jar to Nexus (Maven)
-        run: mvn deploy
-        env:
-          NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
-
-          # - name: Build Docker Image
-          #   run: docker build -t mon-app:latest .
-
-          # - name: Tag Docker Image
-          #   run: docker tag mon-app:latest ${NEXUS_URL}/repository/docker-repo/mon-app:latest
-
-          # - name: Docker Login to Nexus
-          #   run: echo "$NEXUS_PASSWORD" | docker login ${NEXUS_URL} -u $NEXUS_USERNAME --password-stdin
-          #   env:
-          #     NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
-          #     NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
-
-          # - name: Push Docker Image to Nexus
-          #   run: docker push ${NEXUS_URL}/repository/docker-repo/mon-app:latest
-          #   env:
-          #     NEXUS_USERNAME: ${{ env.NEXUS_USERNAME }}
-          #     NEXUS_PASSWORD: ${{ env.NEXUS_PASSWORD }}
+      - name: Deploy .jar to Nexus (skip tests)
+        run: mvn deploy -DskipTests
