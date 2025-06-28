@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>tn.esprit</groupId>
-    <artifactId>BackendPI</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>BackendPI</name>
+    <artifactId>backend-pi</artifactId>
+    <version>0.0.1</version> <!-- Pour release, mettre 0.0.1 sans -SNAPSHOT -->
+    <name>backend-pi</name>
     <description>BackendPI</description>
     <url/>
     <licenses>
@@ -80,7 +80,11 @@
             <artifactId>javase</artifactId>
             <version>3.5.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -91,5 +95,22 @@
             </plugin>
         </plugins>
     </build>
-
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>https://e272-197-22-124-102.ngrok-free.app/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <url>https://e272-197-22-124-102.ngrok-free.app/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>
