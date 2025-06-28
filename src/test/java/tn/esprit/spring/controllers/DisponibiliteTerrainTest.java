@@ -22,6 +22,7 @@ class DisponibiliteTerrainControllerTest {
     @InjectMocks
     private DisponibiliteTerrainController disponibiliteTerrainController;
 
+
     @Mock
     private Iservice disponibiliteTerrainService;
 
