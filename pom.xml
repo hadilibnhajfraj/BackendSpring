@@ -16,7 +16,7 @@
 
     <groupId>tn.esprit</groupId>
     <artifactId>BackendPI</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>BackendPI</name>
     <description>BackendPI</description>
 
@@ -137,5 +137,24 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>https://e779-196-176-72-224.ngrok-free.app/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <url>https://e779-196-176-72-224.ngrok-free.app/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
+
