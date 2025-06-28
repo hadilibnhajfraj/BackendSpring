@@ -28,4 +28,7 @@ public class Commentaire {
 
     @ManyToOne
     private Publication publication;
+
+    public void setContenu(String s) {
+    }
 }
