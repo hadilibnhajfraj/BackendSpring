@@ -98,11 +98,11 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://e272-197-22-124-102.ngrok-free.app/repository/maven-releases/</url>
+            <url>https://182c-197-22-124-102.ngrok-free.app/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
-            <url>https://e272-197-22-124-102.ngrok-free.app/repository/maven-snapshots/</url>
+            <url>https://182c-197-22-124-102.ngrok-free.app/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
     <profiles>
