@@ -179,11 +179,11 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://0d31-197-22-124-102.ngrok-free.app/repository/maven-releases/</url>
+            <url>https://c9ab-197-22-124-102.ngrok-free.ap/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
-            <url>https://0d31-197-22-124-102.ngrok-free.app/repository/maven-snapshots/</url>
+            <url>https://c9ab-197-22-124-102.ngrok-free.ap/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
