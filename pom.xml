@@ -184,11 +184,11 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>https://76cf-41-62-45-15.ngrok-free.app/repository/maven-releases/</url>
+            <url>https://ee6f-197-22-124-102.ngrok-free.app/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
-            <url>https://76cf-41-62-45-15.ngrok-free.app/repository/maven-snapshots/</url>
+            <url>https://ee6f-197-22-124-102.ngrok-free.app/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

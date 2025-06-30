@@ -12,7 +12,7 @@ jobs:
     env:
       NEXUS_USERNAME: admin
       NEXUS_PASSWORD: admin
-      NEXUS_URL: 76cf-41-62-45-15.ngrok-free.app   # <-- ici sans https://
+      NEXUS_URL: ee6f-197-22-124-102.ngrok-free.app   # <-- ici sans https://
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
