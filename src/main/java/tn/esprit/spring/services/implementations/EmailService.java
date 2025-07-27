@@ -1,45 +1,61 @@
 package tn.esprit.spring.services.implementations;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-
-import org.apache.commons.lang3.RandomStringUtils;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender javaMailSender;
 
-    public String sendTemporaryPassword(String to) {
-        String temporaryPassword = RandomStringUtils.random(12, true, true); // Génère un mot de passe aléatoire sécurisé
+    // Inject the JavaMailSender bean using constructor injection
+    public EmailService(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
 
-        String subject = "Votre mot de passe temporaire";
-        String text = "Voici votre mot de passe temporaire : " + temporaryPassword + "\n" +
-                "Utilisez-le pour vous connecter, puis changez-le immédiatement.";
+    // Method to send a simple email
+    public void sendEmail(String to, String subject, String body) throws MessagingException, MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(body);
+
+        // Send the email
+        javaMailSender.send(mimeMessage);
+    }
+
+    // Method to send a simple email (without HTML content)
+    public void sendSimpleEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
-        message.setText(text);
-        mailSender.send(message);
+        message.setText(body);
 
-        return temporaryPassword;
-    }
-    public void sendPasswordResetEmail(String to, String tempPassword) {
-        String subject = "Votre mot de passe temporaire";
-        String text = "Voici votre mot de passe temporaire : " + tempPassword +
-                "\nVeuillez l'utiliser pour réinitialiser votre mot de passe.";
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        mailSender.send(message);
+        // Send the email
+        javaMailSender.send(message);
     }
 
+    // Method to generate a temporary password and send it via email
+    public String sendTemporaryPassword(String to) throws MessagingException {
+        String tempPassword = generateTempPassword();
+        sendEmail(to, "Temporary Password", "Your temporary password is: " + tempPassword);
+        return tempPassword;
+    }
 
+    // Helper method to generate a random temporary password
+    private String generateTempPassword() {
+        int length = 12;  // Length of the temporary password
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            password.append(chars.charAt((int)(Math.random() * chars.length())));
+        }
+        return password.toString();
+    }
 }

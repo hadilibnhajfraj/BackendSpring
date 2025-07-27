@@ -25,26 +25,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String token = getTokenFromRequest(request);
+        String path = request.getRequestURI();
 
-        // Log the received token
-        System.out.println("Received token: " + token);
+        System.out.println("JWT Filter - Path: " + path);
+        System.out.println("JWT Filter - Token: " + (token != null ? "Present" : "Missing"));
+        
+        if (token != null) {
+            System.out.println("JWT Filter - Token first 50 chars: " + token.substring(0, Math.min(50, token.length())));
+            boolean isValid = jwtService.isValidToken(token);
+            System.out.println("JWT Filter - Token validation result: " + isValid);
+            
+            if (isValid) {
+                String email = jwtService.getEmailFromToken(token);
+                String role = jwtService.getRoleFromToken(token);
+                System.out.println("JWT Filter - Valid token. Email: " + email + ", Role: " + role);
 
-        if (token != null && jwtService.isValidToken(token)) {
-            String email = jwtService.getEmailFromToken(token);
-            String role = jwtService.getRoleFromToken(token);
-            System.out.println("Token is valid. Extracted email: " + email + ", Role: " + role);
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority(role)));
-
-            // Ajout du rôle dans les détails
-            authentication.setDetails(role); // Le rôle est ajouté dans les détails
-
-            // Configurez l'authentification dans le contexte
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority(role)));
+                authentication.setDetails(role);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("JWT Filter - Authentication set successfully");
+            } else {
+                System.out.println("JWT Filter - Token validation failed for path: " + path);
+            }
         } else {
-            // Log if the token is invalid or missing
-            System.out.println("Invalid or missing token.");
+            System.out.println("JWT Filter - No token found for path: " + path);
         }
 
         filterChain.doFilter(request, response);

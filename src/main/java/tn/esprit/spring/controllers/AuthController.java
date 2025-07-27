@@ -17,6 +17,8 @@ import tn.esprit.spring.services.UserService;
 import tn.esprit.spring.services.implementations.EmailService;
 import tn.esprit.spring.services.implementations.PasswordResetService;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 
@@ -56,12 +58,92 @@ public class AuthController {
     }
 
 
+    // Step 1: Register user with email confirmation
     @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody UserDTO userDTO) {
+        // Step 2: Register user (save in database, not activated yet)
+        AuthResponse authResponse = userService.register(userDTO);
+        
+        // Get the actual user from database to set confirmation fields
+        Optional<User> userOpt = userRepository.findByEmail(userDTO.email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse("Error creating user"));
+        }
+        
+        User user = userOpt.get();
+        
+        // Step 3: Generate confirmation code and expiration time
+        String confirmationCode = generateTempPassword().substring(0, 6); // 6-digit code
+        
+        // Calculate expiration time in milliseconds (10 minutes from now)
+        long expirationTimeMillis = System.currentTimeMillis() + 10 * 60 * 1000; // 10 minutes expiration
+        
+        // Step 4: Save confirmation code and expiration in the database
+        user.setConfirmationCode(confirmationCode);
+        user.setConfirmationCodeExpiration(LocalDateTime.ofInstant(
+            java.time.Instant.ofEpochMilli(expirationTimeMillis), 
+            ZoneId.systemDefault()
+        )); // Use LocalDateTime as per entity
+        user.setActive(false); // Ensure user is not active until confirmed
+        userRepository.save(user);
+        
+        // Step 5: Send confirmation email with the code
+        try {
+            emailService.sendEmail(user.getEmail(), "Please confirm your registration",
+                    "Your confirmation code is: " + confirmationCode);
+            return ResponseEntity.ok(new AuthResponse("Please check your email for the confirmation code."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse("Error sending confirmation email"));
+        }
+    }
+
+    // Step 6: Confirm email using the confirmation code
+    @PostMapping("/confirm-email")
+    public ResponseEntity<?> confirmEmail(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        
+        // Step 7: Validate the confirmation code
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+        }
+        
+        User user = userOpt.get();
+        
+        // Check if confirmation code exists
+        if (user.getConfirmationCode() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No confirmation code found");
+        }
+        
+        // Check if the code matches
+        if (!user.getConfirmationCode().equals(code)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid confirmation code");
+        }
+        
+        // Check if code is expired (confirmationCodeExpiration is Long in milliseconds)
+        long currentTimeMillis = System.currentTimeMillis();
+        if (user.getConfirmationCodeExpiration() != null && currentTimeMillis > user.getConfirmationCodeExpiration().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Confirmation code expired");
+        }
+        
+        // Step 8: Activate user
+        user.setActive(true);
+        user.setConfirmationCode(null); // Clear the confirmation code
+        user.setConfirmationCodeExpiration(null); // Clear expiration time
+        userRepository.save(user);
+        
+        return ResponseEntity.ok("Email confirmed successfully");
+    }
+
+   /* @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody UserDTO userDTO) {
         System.out.println("Received user: " + userDTO);
         AuthResponse response = userService.register(userDTO);
         return ResponseEntity.ok(response);
-    }
+    }*/
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {

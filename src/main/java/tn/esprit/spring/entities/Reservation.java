@@ -18,9 +18,9 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int idReservation;
     LocalDate dateReservation;
+    double prix; // Add price field
 
     @ManyToOne
-    //  @JoinColumn(name = "id_terrain")
     Terrain terrain;
 
 }

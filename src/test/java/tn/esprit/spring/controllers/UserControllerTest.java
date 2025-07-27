@@ -30,13 +30,13 @@ class UserControllerTest {
     @Test
     void testGetAllUsers() {
         User user1 = new User();
-        user1.setId(1);
+        user1.setId((long) 1);
         user1.setNom("John");
         user1.setPrenom("Doe");
         user1.setEmail("john@example.com");
 
         User user2 = new User();
-        user2.setId(2);
+        user2.setId((long) 2);
         user2.setNom("Jane");
         user2.setPrenom("Smith");
         user2.setEmail("jane@example.com");
@@ -55,7 +55,7 @@ class UserControllerTest {
     @Test
     void testGetUserById_found() {
         User user = new User();
-        user.setId(1);
+        user.setId((long) 1);
         user.setNom("John");
         user.setPrenom("Doe");
         user.setEmail("john@example.com");
@@ -86,7 +86,7 @@ class UserControllerTest {
         userToCreate.setEmail("john@example.com");
 
         User createdUser = new User();
-        createdUser.setId(1);
+        createdUser.setId((long) 1);
         createdUser.setNom("John");
         createdUser.setPrenom("Doe");
         createdUser.setEmail("john@example.com");
@@ -107,7 +107,7 @@ class UserControllerTest {
         userDetails.setEmail("john_updated@example.com");
 
         User updatedUser = new User();
-        updatedUser.setId(1);
+        updatedUser.setId((long) 1);
         updatedUser.setNom("John Updated");
         updatedUser.setPrenom("Doe Updated");
         updatedUser.setEmail("john_updated@example.com");

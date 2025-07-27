@@ -26,7 +26,7 @@ public class UserService {
     }
 
     public Optional<User> getUserById(int id) {
-        return userRepository.findById(id);
+        return userRepository.findById((long) id);
     }
 
     public User createUser(User user) {
@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public User updateUser(int id, User userDetails) {
-        return userRepository.findById(id)
+        return userRepository.findById((long) id)
                 .map(user -> {
                     user.setNom(userDetails.getNom());
                     user.setPrenom(userDetails.getPrenom());
@@ -45,7 +45,7 @@ public class UserService {
     }
 
     public void deleteUser(int id) {
-        userRepository.deleteById(id);
+        userRepository.deleteById((long) id);
     }
     public AuthResponse register(UserDTO userDTO) {
         User user = new User();
@@ -55,6 +55,7 @@ public class UserService {
         user.setDateNaissance(userDTO.dateNaissance);
         user.setPassword(passwordEncoder.encode(userDTO.password));
         user.setRole(userDTO.role);
+        user.setActive(false); // Set inactive until email confirmation
 
         userRepository.save(user);
 
@@ -68,13 +69,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            System.out.println("Email reçu : " + request.getEmail());
-            System.out.println("Mot de passe reçu : " + request.getPassword());
-            System.out.println("Utilisateur trouvé : " + user);
             throw new RuntimeException("Invalid credentials");
+        }
+
+        // Check if user account is active
+        if (user.getActive() == null || !user.getActive()) {
+            throw new RuntimeException("Account not activated. Please confirm your email first.");
         }
 
         String jwt = JwtService.generateToken(user);
         return new AuthResponse(jwt);
+    }
+
+    public List<User> getActiveUsers() {
+        return userRepository.findByActiveTrue();
     }
 }

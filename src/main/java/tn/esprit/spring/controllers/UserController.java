@@ -48,4 +48,9 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/active-users")
+    public List<User> getActiveUsers() {
+        return userService.getActiveUsers();
+    }
 }
