@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/metrics/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                .requestMatchers("/api/oauth2/**").permitAll()
                 .requestMatchers("/publications/add").hasAuthority("Presse")
                 .requestMatchers("/publications/mine").hasAuthority("Presse")
                 .requestMatchers("/publications/getPublication/**").hasAuthority("Presse")
